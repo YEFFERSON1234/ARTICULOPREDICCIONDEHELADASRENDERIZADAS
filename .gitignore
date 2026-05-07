@@ -1,0 +1,11 @@
+# Entorno virtual (NO SUBIR)
+venv/
+.venv/
+env/
+.env/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc

@@ -1,0 +1,19 @@
+┌─────────────────────────────────────────────────────────────────┐
+│                         ENTRENAMIENTO (Python)                   │
+├─────────────────────────────────────────────────────────────────┤
+│  datos_heladas_altiplano.csv  →  XGBoost/LSTM/RF  →  Ensemble   │
+│                                                                  │
+│                                    ↓                             │
+│                          predictions.csv                         │
+│                    (lat, lon, temp, riesgo_helada)              │
+└─────────────────────────────────────────────────────────────────┘
+                                      ↓
+┌─────────────────────────────────────────────────────────────────┐
+│                      VISUALIZACIÓN 3D (OpenGL)                   │
+├─────────────────────────────────────────────────────────────────┤
+│  DEM (SRTM)  →  Malla 3D del terreno                            │
+│                      +                                          │
+│  predictions.csv  →  Heatmap (colores según riesgo)             │
+│                      ↓                                          │
+│              Textura fusionada → Renderizado en pantalla        │
+└─────────────────────────────────────────────────────────────────┘
