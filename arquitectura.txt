@@ -1,19 +1,30 @@
-┌─────────────────────────────────────────────────────────────────┐
-│                         ENTRENAMIENTO (Python)                   │
-├─────────────────────────────────────────────────────────────────┤
-│  datos_heladas_altiplano.csv  →  XGBoost/LSTM/RF  →  Ensemble   │
-│                                                                  │
-│                                    ↓                             │
-│                          predictions.csv                         │
-│                    (lat, lon, temp, riesgo_helada)              │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         ENTRENAMIENTO (Python)                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  datos_heladas_altiplano.csv  →  XGBoost/LSTM/RF  →  Ensemble               │
+│                                    ↓                                         │
+│                          predictions.csv                                     │
+│                    (station, lat, lon, temp, riesgo_helada)                 │
+└─────────────────────────────────────────────────────────────────────────────┘
                                       ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                      VISUALIZACIÓN 3D (OpenGL)                   │
-├─────────────────────────────────────────────────────────────────┤
-│  DEM (SRTM)  →  Malla 3D del terreno                            │
-│                      +                                          │
-│  predictions.csv  →  Heatmap (colores según riesgo)             │
-│                      ↓                                          │
-│              Textura fusionada → Renderizado en pantalla        │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    PROCESAMIENTO DEL TERRENO (NUEVO)                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Tiles DEM (s15_w069.tif, s16_w070.tif, ...)  →  convertir_tiles_a_csv.py   │
+│                                    ↓                                         │
+│                    dem_puno_render.csv.gz (15 MB)  ← ¡NUEVO!                 │
+│                    (longitud, latitud, elevacion)                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      ↓
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      VISUALIZACIÓN 3D (OpenGL) - ACTUALIZADA                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  dem_puno_render.csv.gz  →  Malla 3D del terreno (optimizada)               │
+│                      +                                                       │
+│  predictions.csv  →  Color según riesgo de helada                           │
+│                      ↓                                                       │
+│              Renderizado en tiempo real (interactivo)                        │
+│              - Mouse arrastrar: rotar                                        │
+│              - +/-: zoom                                                     │
+│              - Flechas: mover cámara                                         │
+└─────────────────────────────────────────────────────────────────────────────┘
