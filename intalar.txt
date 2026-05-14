@@ -1,0 +1,32 @@
+1. https://www.python.org/downloads/release/python-3119/
+3.11.9
+
+2. Instalación de PyTorch (Núcleo)
+Este es el paso más crítico. Usaremos el índice oficial para asegurar la compatibilidad con los núcleos CUDA.
+
+pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121
+
+3. Instalación de Machine Learning y Ciencia de Datos
+Instalaremos los paquetes de procesamiento y modelos de ensamble.
+
+pip install numpy==2.4.3 pandas==3.0.2 scipy==1.17.1 xgboost==3.2.0 scikit-learn==1.8.0
+
+4. Instalación de Geoespacial y Terreno (DEM)
+Estos paquetes son necesarios para manejar los archivos GeoTIFF y las transformaciones de coordenadas.
+
+pip install rasterio==1.4.4 affine==2.4.0 click==8.3.3 cligj==0.7.2 click-plugins==1.1.1.2
+
+5. Instalación de Visualización y Gráficos
+Aquí incluimos las librerías para el informe y el motor de renderizado.
+
+# Gráficos estadísticos
+pip install matplotlib==3.10.9 seaborn==0.13.2
+
+# OpenGL y procesamiento de imágenes
+pip install opencv-python==4.13.0.92 pillow==12.1.1
+pip install pyopengl glfw
+
+6. Dependencias de Soporte y Utilidades
+Muchos de estos se instalan automáticamente, pero para asegurar las versiones exactas que pediste:
+
+pip install joblib==1.5.3 threadpoolctl==3.6.0 networkx==3.6.1 sympy==1.13.1 jinja2==3.1.6 fsspec==2026.2.0
