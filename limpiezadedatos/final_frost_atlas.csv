@@ -1,0 +1,1 @@
+year,month,day,precip,tmax,tmin,estacion,lat,lon,zona,departamento,fecha,frost,day_of_year,tmin_lag_1,tmin_lag_2,tmin_lag_3,pred_xgb,probabilidad_helada,tmin_pred_rf,tmin_pred_lstm,tmin_final,nivel_riesgo
