@@ -20,7 +20,7 @@ periodos = [
     {'nombre': 'sem2', 'meses': [f"{m:02d}" for m in range(7, 13)]}
 ]
 
-for year in range(2023, 2024):
+for year in range(2020, 2024):
     for p in periodos:
         filename = f"{output_dir}/era5_{year}_{p['nombre']}.nc"
         
