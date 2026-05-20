@@ -15,7 +15,7 @@ if not os.path.exists(output_dir):
 area_puno = [-13.9, -71.0, -17.5, -68.8]
 
 # Bucle principal por año (2020 a 2023)
-for year in range(2018, 2020):
+for year in range(2015, 2018):
     # Nuevo bucle secundario para recorrer los 12 meses del año
     for month in range(1, 13):
         # Convertimos el número de mes a texto con dos dígitos (ej: '01', '02', ..., '12')
