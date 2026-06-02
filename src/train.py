@@ -51,7 +51,5 @@ def train_models(csv_path, models_dir='models'):
 if __name__ == '__main__':
     csv_path = os.path.join('data_process', 'datos_heladas_puno_REAL.csv')
     if not os.path.exists(csv_path):
-        csv_path = os.path.join('limpiezadedatos', 'datos_heladas_puno_REAL.csv')
-    if not os.path.exists(csv_path):
         raise FileNotFoundError(f"No se encontró {csv_path}")
     train_models(csv_path)

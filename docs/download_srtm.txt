@@ -1,0 +1,38 @@
+SRTM 1 Arc-Second Global	✅ ESTA	Resolución 30m, ideal para tu proyecto
+SRTM Non-Void Filled	❌ No	Similar a la anterior pero sin huecos
+SRTM Void Filled	❌ No	Similar a la anterior
+SRTM Water Body Data	❌ No	Solo datos de agua, no terreno
+
+Marca SRTM 1 Arc-Second Global
+
+Haz clic en "Results" (botón abajo a la derecha)
+
+Aparecerá una lista de tiles que cubren tu área
+
+Descarga los que necesites en formato GeoTIFF
+
+Entity ID	Coordenadas	¿Lo necesitas?
+SRTM15S1W069V3	15°S, 69°O	✅ Sí (zona norte)
+SRTM15S1W070V3	15°S, 70°O	✅ Sí (zona norte)
+SRTM15S1W071V3	15°S, 71°O	✅ Sí (zona norte)
+SRTM15S1W069V3	16°S, 69°O	✅ Sí (zona sur)
+CÓMO DESCARGAR CADA UNO
+Paso 1: Haz clic en el Entity ID
+Haz clic en el enlace del primer archivo (ej: SRTM15S1W069V3)
+
+Paso 2: Buscar el ícono de descarga
+Aparecerá una ventana con opciones. Busca el ícono de la carpeta (Download Options) o un botón que diga "Download"
+
+Paso 3: Seleccionar formato
+Elige GeoTIFF como formato de descarga
+
+Paso 4: Repetir
+Repite para cada archivo que necesites
+
+Orden	Entity ID	Zona
+1	SRTM15S1W069V3	Norte - Este
+2	SRTM15S1W070V3	Norte - Centro
+3	SRTM15S1W071V3	Norte - Oeste
+4	SRTM16S1W069V3	Sur - Este
+5	SRTM16S1W070V3	Sur - Centro
+6	SRTM16S1W071V3	Sur - Oeste

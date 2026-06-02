@@ -8,5 +8,10 @@ env/
 .DS_Store
 Thumbs.db
 __pycache__/
-*.pyc*.tif
+*.pyc
+*.tif
+
+# Archivos grandes de datos
+data/era5_procesado_maestro.csv
+Render/Mapa/terrain_vertices.npy
 

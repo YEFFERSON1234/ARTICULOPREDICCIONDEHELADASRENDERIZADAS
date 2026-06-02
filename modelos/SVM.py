@@ -17,7 +17,7 @@ print("-> Iniciando el sistema de predicción de heladas...")
 print("-> Calculando ruta dinámica relativa al script...")
 
 ruta_actual_script = os.path.dirname(os.path.abspath(__file__))
-carpeta_datos = os.path.abspath(os.path.join(ruta_actual_script, '..', 'datos_era5_puno'))
+carpeta_datos = os.path.abspath(os.path.join(ruta_actual_script, '..', 'data', 'datos_era5_puno'))
 archivos = glob.glob(os.path.join(carpeta_datos, "*.nc"))
 
 if not archivos:

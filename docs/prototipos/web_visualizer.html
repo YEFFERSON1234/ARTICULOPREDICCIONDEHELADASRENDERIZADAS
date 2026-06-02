@@ -1,0 +1,210 @@
+<canvas id="c" style="width:100%;display:block;border-radius:12px;background:#0a0f1e"></canvas>
+<div style="display:flex;align-items:center;gap:16px;margin:10px 0 4px;flex-wrap:wrap">
+  <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:180px">
+    <label style="font-size:12px;color:var(--color-text-secondary);white-space:nowrap">Dia del año</label>
+    <input type="range" min="0" max="364" value="180" id="daySlider" style="flex:1">
+    <span id="dayLabel" style="font-size:12px;font-weight:500;min-width:60px">Julio 1</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:180px">
+    <label style="font-size:12px;color:var(--color-text-secondary);white-space:nowrap">Rotacion</label>
+    <input type="range" min="-60" max="60" value="20" id="rotSlider" style="flex:1">
+  </div>
+  <button onclick="toggleAnim()" id="btnAnim" style="font-size:12px;padding:6px 14px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);cursor:pointer">Animar</button>
+</div>
+<div style="display:flex;align-items:center;gap:6px;margin:6px 0 0">
+  <span style="font-size:11px;color:var(--color-text-tertiary)">Riesgo:</span>
+  <div style="height:10px;flex:1;max-width:200px;border-radius:4px;background:linear-gradient(to right,#1a6bbd,#3fa67a,#e8c020,#e85a20,#c0d8ff)"></div>
+  <span style="font-size:11px;color:var(--color-text-tertiary)">bajo</span>
+  <span style="font-size:11px;color:#e85a20;margin-left:4px">alto</span>
+  <span style="font-size:11px;color:#c0d8ff;margin-left:4px">nieve</span>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+const W = 680, H = 420;
+canvas.width = W; canvas.height = H;
+
+const COLS = 48, ROWS = 36;
+let rotY = 20, day = 180, animating = false, animDir = 1, raf = null;
+
+function noise(x, y, s=1) {
+  const xi = Math.floor(x*s), yi = Math.floor(y*s);
+  const xf = x*s - xi, yf = y*s - yi;
+  const r = (a,b) => Math.sin(a*127.1 + b*311.7)*43758.5453;
+  const f = r => r - Math.floor(r);
+  const a=f(r(xi,yi)), b=f(r(xi+1,yi)), c=f(r(xi,yi+1)), d=f(r(xi+1,yi+1));
+  const u = xf*xf*(3-2*xf), v = yf*yf*(3-2*yf);
+  return a + (b-a)*u + (c-a)*v + (b-a+a-b+d-c)*u*v;
+}
+
+function elevation(gx, gy) {
+  const x = gx/COLS, y = gy/ROWS;
+  let e = noise(x,y,2)*0.5 + noise(x,y,4)*0.3 + noise(x,y,8)*0.15 + noise(x,y,16)*0.05;
+  e += Math.exp(-((x-0.3)*(x-0.3)+(y-0.5)*(y-0.5))*8)*0.4;
+  e += Math.exp(-((x-0.7)*(x-0.7)+(y-0.3)*(y-0.3))*12)*0.3;
+  e += Math.exp(-((x-0.5)*(x-0.5)+(y-0.7)*(y-0.7))*6)*0.2;
+  e = Math.max(0, e);
+  return e;
+}
+
+function frostRisk(gx, gy, dayOfYear) {
+  const x = gx/COLS, y = gy/ROWS;
+  const elev = elevation(gx, gy);
+  const seasonal = Math.cos((dayOfYear - 15) * 2 * Math.PI / 365) * 0.5 + 0.5;
+  const spatial = noise(x, y, 3)*0.4 + noise(x, y, 7)*0.2;
+  const elevFactor = Math.pow(elev, 0.8) * 0.6;
+  let risk = seasonal * 0.5 + elevFactor * 0.3 + spatial * 0.2;
+  risk = Math.max(0, Math.min(1, risk));
+  return risk;
+}
+
+function riskColor(risk, elev) {
+  if (elev > 0.85) return `rgba(192,216,255,${0.7+elev*0.3})`;
+  if (risk < 0.2) return `rgba(26,107,189,${0.7+risk})`;
+  if (risk < 0.45) return `rgba(63,166,122,${0.7+risk*0.3})`;
+  if (risk < 0.65) return `rgba(232,192,32,${0.8})`;
+  return `rgba(232,90,32,${0.75+risk*0.25})`;
+}
+
+function project(wx, wy, wz) {
+  const cx = W/2, cy = H*0.38;
+  const scale = 520;
+  const rotRad = rotY * Math.PI / 180;
+  const rx = wx * Math.cos(rotRad) - wy * Math.sin(rotRad);
+  const ry = wx * Math.sin(rotRad) + wy * Math.cos(rotRad);
+  const tilt = 0.55;
+  const sx = cx + rx * scale;
+  const sy = cy + ry * scale * tilt - wz * scale * 0.55;
+  return [sx, sy];
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  ctx.fillStyle = '#0a0f1e';
+  ctx.fillRect(0, 0, W, H);
+
+  for(let s=0;s<80;s++){
+    const sx = (noise(s,0,1)*W)|0, sy = (noise(0,s,1)*H*0.6)|0;
+    const r = noise(s,s,2)*1.5+0.3;
+    ctx.beginPath();
+    ctx.arc(sx,sy,r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,255,${0.2+noise(s,1,3)*0.5})`;
+    ctx.fill();
+  }
+
+  const faces = [];
+  for (let gy = 0; gy < ROWS-1; gy++) {
+    for (let gx = 0; gx < COLS-1; gx++) {
+      const wx0 = (gx/COLS - 0.5)*1.1, wy0 = (gy/ROWS - 0.5)*0.85;
+      const wx1 = ((gx+1)/COLS - 0.5)*1.1, wy1 = ((gy+1)/ROWS - 0.5)*0.85;
+      const e00 = elevation(gx, gy)*0.38;
+      const e10 = elevation(gx+1, gy)*0.38;
+      const e01 = elevation(gx, gy+1)*0.38;
+      const e11 = elevation(gx+1, gy+1)*0.38;
+      const avgE = (elevation(gx,gy)+elevation(gx+1,gy)+elevation(gx,gy+1)+elevation(gx+1,gy+1))/4;
+      const risk = frostRisk(gx+0.5, gy+0.5, day);
+      const [p00x,p00y] = project(wx0,wy0,e00);
+      const [p10x,p10y] = project(wx1,wy0,e10);
+      const [p11x,p11y] = project(wx1,wy1,e11);
+      const [p01x,p01y] = project(wx0,wy1,e01);
+      const avgY = (p00y+p10y+p11y+p01y)/4;
+      faces.push({avgY, p00x,p00y,p10x,p10y,p11x,p11y,p01x,p01y,risk,avgE,gx,gy});
+    }
+  }
+
+  faces.sort((a,b) => b.avgY - a.avgY);
+
+  for (const f of faces) {
+    const dy = (f.gy - ROWS/2)/ROWS, dx = (f.gx - COLS/2)/COLS;
+    const lightFactor = 0.6 + dy*0.25 - dx*0.1;
+    ctx.beginPath();
+    ctx.moveTo(f.p00x, f.p00y);
+    ctx.lineTo(f.p10x, f.p10y);
+    ctx.lineTo(f.p11x, f.p11y);
+    ctx.lineTo(f.p01x, f.p01y);
+    ctx.closePath();
+    ctx.fillStyle = riskColor(f.risk, f.avgE);
+    ctx.globalAlpha = Math.min(1, lightFactor * 0.95);
+    ctx.fill();
+    ctx.globalAlpha = 0.18;
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 0.3;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  const labels = [
+    {wx:-0.25, wy:-0.25, wz:0.22, text:'Puno'},
+    {wx:0.1,  wy:-0.35, wz:0.32, text:'Juliaca'},
+    {wx:-0.1, wy:0.1,   wz:0.15, text:'Lago Titicaca'},
+    {wx:0.3,  wy:0.1,   wz:0.28, text:'Cordillera'},
+  ];
+  for (const lb of labels) {
+    const [lx, ly] = project(lb.wx, lb.wy, lb.wz+0.05);
+    if (lx < 20 || lx > W-20 || ly < 10 || ly > H-10) continue;
+    ctx.beginPath(); ctx.arc(lx,ly,3,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fill();
+    ctx.font = '500 11px sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+    ctx.shadowColor='rgba(0,0,0,0.8)'; ctx.shadowBlur=4;
+    ctx.fillText(lb.text, lx+5, ly-4);
+    ctx.shadowBlur=0;
+  }
+
+  const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const mStart = [0,31,59,90,120,151,181,212,243,273,304,334];
+  let mIdx = 11;
+  for(let i=0;i<12;i++) if(day >= mStart[i]) mIdx=i;
+  const mDay = day - mStart[mIdx] + 1;
+
+  ctx.font='500 13px sans-serif';
+  ctx.fillStyle='rgba(255,255,255,0.85)';
+  ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=6;
+  ctx.fillText(`${months[mIdx]} ${mDay}`, W-80, 28);
+  ctx.shadowBlur=0;
+
+  const risk0 = frostRisk(COLS*0.3, ROWS*0.45, day);
+  const pct = Math.round(risk0*100);
+  ctx.font='12px sans-serif';
+  ctx.fillStyle='rgba(255,255,255,0.7)';
+  ctx.fillText(`Riesgo zona Puno: ${pct}%`, 16, H-16);
+}
+
+const dayNames = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const mStarts = [0,31,59,90,120,151,181,212,243,273,304,334];
+function dayToLabel(d) {
+  let m=11; for(let i=0;i<12;i++) if(d>=mStarts[i]) m=i;
+  return `${dayNames[m]} ${d-mStarts[m]+1}`;
+}
+
+document.getElementById('daySlider').addEventListener('input', e => {
+  day = +e.target.value;
+  document.getElementById('dayLabel').textContent = dayToLabel(day);
+  draw();
+});
+document.getElementById('rotSlider').addEventListener('input', e => {
+  rotY = +e.target.value;
+  draw();
+});
+
+function toggleAnim() {
+  animating = !animating;
+  document.getElementById('btnAnim').textContent = animating ? 'Pausar' : 'Animar';
+  if (animating) loop();
+  else if (raf) cancelAnimationFrame(raf);
+}
+
+function loop() {
+  if (!animating) return;
+  day = (day + 0.4) % 365;
+  document.getElementById('daySlider').value = day;
+  document.getElementById('dayLabel').textContent = dayToLabel(Math.round(day));
+  draw();
+  raf = requestAnimationFrame(loop);
+}
+
+draw();
+</script>

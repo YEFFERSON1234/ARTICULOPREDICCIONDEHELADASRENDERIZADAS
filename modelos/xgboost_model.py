@@ -5,7 +5,7 @@ from sklearn.metrics import mean_squared_error, r2_score, f1_score
 
 # 1. CARGA
 print("Cargando base de datos real de Puno...")
-df = pd.read_csv('limpiezadedatos/datos_heladas_puno_REAL.csv')
+df = pd.read_csv('data_process/datos_heladas_puno_REAL.csv')
 df['fecha'] = pd.to_datetime(df['fecha'])
 df['frost'] = (df['tmin'] <= 0).astype(int)
 df = df.sort_values(['estacion', 'fecha']).reset_index(drop=True)
@@ -58,5 +58,5 @@ else:
     resultados = df[test_mask].copy()
     resultados['tmin_pred'] = y_reg_pred
     resultados['probabilidad_helada'] = model_clf.predict_proba(X_test)[:, 1]
-    resultados.to_csv('limpiezadedatos/predictions.csv', index=False)
+    resultados.to_csv('data_process/predictions.csv', index=False)
     print("Archivo predictions.csv generado para OpenGL.")
