@@ -1,0 +1,61 @@
+
+INFORME DE PREDICCIONES DE HELADAS - PRÓXIMOS 30 DÍAS
+================================================================================
+
+Fecha de Generación: 2026-06-03 15:34:59
+Estación: CHUQUIBAMBILLA
+Ubicación: -14.79°S, -70.72°O
+Zona: Norte
+Departamento: PUNO
+
+PERÍODO DE PREDICCIÓN
+--------------------------------------------------------------------------------
+Desde: 2015-10-30
+Hasta: 2015-11-28
+Días predichos: 30
+
+RESUMEN DE PREDICCIONES
+--------------------------------------------------------------------------------
+Total de días: 30
+Días con helada predicha: 30 (100.0%)
+Días sin helada: 0 (0.0%)
+Probabilidad promedio de helada: 59.50%
+
+ANÁLISIS POR RIESGO
+--------------------------------------------------------------------------------
+Alto riesgo (≥70%): 0 días (0.0%)
+Riesgo medio (40-70%): 30 días (100.0%)
+Bajo riesgo (<40%): 0 días (0.0%)
+
+DATOS DEL CSV MAESTRO CONSOLIDADO
+--------------------------------------------------------------------------------
+Archivo: CSV_MAESTRO_CONSOLIDADO.csv
+Registros: 73170
+Columnas: 30
+Período histórico: 2015-01-01 a 2015-10-29
+Estaciones incluidas: 3
+Heladas históricas: 43011 (58.78%)
+
+MODELOS INCLUIDOS EN EL ANÁLISIS
+--------------------------------------------------------------------------------
+- XGBoost (probabilidad_helada)
+- LSTM (prob_helada_lstm)
+- MLP (prob_helada_mlp)
+- Prophet (prob_helada_prophet)
+- SARIMAX (prob_helada_sarimax)
+- CNN1D (prob_helada_cnn1d)
+- Random Forest (prob_helada_rf)
+- SVM (prob_helada_svm)
+- Ensemble (prob_helada_ensemble)
+- Promedio de modelos (prob_ensemble_promedio)
+
+NOTA METODOLÓGICA
+--------------------------------------------------------------------------------
+Las predicciones futuras se generan basadas en:
+1. Patrones históricos de heladas por mes
+2. Correlación con temperatura mínima
+3. Correlación con amplitud térmica
+4. Promedios históricos de variables meteorológicas
+
+Los datos proyectados utilizan promedios históricos por mes para
+variables meteorológicas como precipitación, temperatura máxima y mínima.

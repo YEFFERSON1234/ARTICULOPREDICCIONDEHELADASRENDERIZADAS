@@ -1,0 +1,12 @@
+====================================================================================================
+                              INFORME GENERAL DE PREDICCIONES - CONSOLIDADO
+====================================================================================================
+
+Fecha de Generación: 2026-06-03 15:35:12
+Última fecha histórica: 2015-10-29
+
+Mañana: 2015-10-30
+Pasado Mañana: 2015-10-31
+
+Se generó análisis consolidado del CSV Maestro y Predicciones Futuras.
+Ver salida de consola para detalles completos.
