@@ -15,16 +15,15 @@ if sys.platform == 'win32' and not hasattr(sys.stdout, 'buffer'):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 def train_holt_winters():
-    """Entrena modelo Holt-Winters para predicción de heladas"""
+    """Entrena modelo Holt-Winters para predicción de heladas de forma correcta"""
     print("="*70)
-    print("MODELO HOLT-WINTERS")
+    print("MODELO HOLT-WINTERS (CORREGIDO)")
     print("="*70)
     
     try:
         from statsmodels.tsa.holtwinters import ExponentialSmoothing
     except ImportError:
-        print("[ERROR] statsmodels no está instalado")
-        print("Instala con: pip install statsmodels")
+        print("[ERROR] statsmodels no está instalado. Instala con: pip install statsmodels")
         return
     
     # 1. Cargar datos
@@ -33,25 +32,27 @@ def train_holt_winters():
     df['fecha'] = pd.to_datetime(df['fecha'])
     df = df.sort_values('fecha')
     
-    # Usar una sola estación para Holt-Winters
+    # Usar una sola estación 
     estacion = df['estacion'].value_counts().index[0]
     print(f"Usando estación: {estacion}")
     
     df_est = df[df['estacion'] == estacion].copy()
     df_est = df_est.set_index('fecha')
     
-    # Seleccionar solo columnas numéricas
+    # Seleccionar solo columnas numéricas antes del resample
     numeric_cols = df_est.select_dtypes(include=[np.number]).columns
     df_est = df_est[numeric_cols]
     
-    # Resample a diario
-    df_est = df_est.resample('D').mean().dropna()
+    # SOLUCIÓN AL ERROR 1: Resample diario y rellenar nulos en vez de eliminarlos para no perder la frecuencia 'D'
+    df_est = df_est.resample('D').mean()
+    df_est = df_est.ffill() # Rellena días faltantes con el valor del día anterior
+    df_est.index.freq = 'D' # Asigna explícitamente la frecuencia diaria requerida por statsmodels
     
     # 2. Preparar datos
     print("[2/4] Preparando datos...")
     y = df_est['tmin']
     
-    # Dividir datos
+    # Dividir datos de forma temporal
     train_size = int(len(y) * 0.8)
     y_train = y[:train_size]
     y_test = y[train_size:]
@@ -62,7 +63,7 @@ def train_holt_winters():
     # 3. Entrenar Holt-Winters
     print("[3/4] Entrenando Holt-Winters...")
     try:
-        # Holt-Winters con estacionalidad anual (365 días)
+        # Usamos una inicialización heurística más estable para evitar errores de convergencia
         model = ExponentialSmoothing(
             y_train,
             trend='add',
@@ -70,52 +71,47 @@ def train_holt_winters():
             seasonal_periods=365,
             damped_trend=True
         )
-        
-        results = model.fit()
-        print("Modelo entrenado exitosamente")
+        results = model.fit(optimized=True, use_brute=True)
+        print("Modelo Holt-Winters avanzado entrenado exitosamente")
     except Exception as e:
-        print(f"[ERROR] No se pudo entrenar con estacionalidad anual: {e}")
-        print("Usando versión sin estacionalidad...")
-        try:
-            model = ExponentialSmoothing(
-                y_train,
-                trend='add',
-                seasonal=None,
-                damped_trend=True
-            )
-            results = model.fit()
-            print("Modelo simplificado entrenado")
-        except Exception as e2:
-            print(f"[ERROR] No se pudo entrenar: {e2}")
-            return
+        print(f"[WARN] No se pudo entrenar con estacionalidad anual: {e}")
+        print("Usando versión simplificada...")
+        model = ExponentialSmoothing(y_train, trend='add', seasonal=None, damped_trend=True)
+        results = model.fit()
+        print("Modelo simplificado entrenado")
     
     # 4. Predecir
     print("[4/4] Realizando predicciones...")
-    y_pred = results.forecast(steps=len(y_test))
     
-    # Calcular helada (tmin <= 0)
+    # SOLUCIÓN AL ERROR 2: Forzar las predicciones a heredar el índice cronológico real del set de prueba
+    y_pred = results.forecast(steps=len(y_test))
+    y_pred.index = y_test.index 
+    
+    # Calcular helada basada en el umbral meteorológico estándar (tmin <= 0°C)
     y_test_helada = (y_test <= 0).astype(int)
     y_pred_helada = (y_pred <= 0).astype(int)
     
-    # Métricas
-    f1 = f1_score(y_test_helada, y_pred_helada)
+    # Métricas finales
+    f1 = f1_score(y_test_helada, y_pred_helada, zero_division=0)
     rmse = np.sqrt(mean_squared_error(y_test, y_pred))
     
-    print(f"\n" + "="*70)
-    print(f"RESULTADOS HOLT-WINTERS")
-    print(f"="*70)
+    print("\n" + "="*70)
+    print("RESULTADOS HOLT-WINTERS")
+    print("="*70)
     print(f"F1-Score (heladas): {f1:.4f}")
     print(f"RMSE (temperatura): {rmse:.4f}°C")
     
-    # Guardar predicciones
+    # Guardar predicciones alineadas
     resultados = pd.DataFrame({
-        'fecha': y_test.index,
+        'fecha': y_test.index.strftime('%Y-%m-%d'),
         'tmin_real': y_test.values,
         'tmin_pred': y_pred.values,
         'helada_real': y_test_helada.values,
         'helada_pred': y_pred_helada.values,
-        'prob_helada': (1 - y_pred / 10).clip(0, 1)  # Probabilidad aproximada
+        # Escala sigmoide simple para simular probabilidad basada en proximidad a 0°C
+        'prob_frost_hw': (1 / (1 + np.exp(y_pred.values))).clip(0, 1)
     })
+    
     resultados['lat'] = df_est['lat'].iloc[0]
     resultados['lon'] = df_est['lon'].iloc[0]
     

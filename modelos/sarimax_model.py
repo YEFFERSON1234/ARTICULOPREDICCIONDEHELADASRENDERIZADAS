@@ -1,12 +1,13 @@
 """
 sarimax_model.py
-Modelo SARIMAX (Seasonal AutoRegressive Integrated Moving Average with eXogenous variables)
-Modelo estadístico tradicional para predicción de heladas
+Modelo SARIMAX optimizado para predicción de heladas
+Corregido: Sin Data Leakage, ejecución rápida y sincronización temporal
 """
 
 import pandas as pd
 import numpy as np
 import sys
+from sklearn.metrics import f1_score, mean_squared_error
 
 # Configurar encoding para Windows
 if sys.platform == 'win32' and not hasattr(sys.stdout, 'buffer'):
@@ -14,125 +15,126 @@ if sys.platform == 'win32' and not hasattr(sys.stdout, 'buffer'):
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 def train_sarimax():
-    """Entrena modelo SARIMAX para predicción de heladas"""
     print("="*70)
-    print("MODELO SARIMAX")
+    print("MODELO SARIMAX (CORREGIDO Y OPTIMIZADO)")
     print("="*70)
     
     try:
         from statsmodels.tsa.statespace.sarimax import SARIMAX
-        from statsmodels.tsa.seasonal import seasonal_decompose
     except ImportError:
-        print("[ERROR] statsmodels no está instalado")
-        print("Instala con: pip install statsmodels")
+        print("[ERROR] statsmodels no está instalado. Instala con: pip install statsmodels")
         return
     
     # 1. Cargar datos
     print("\n[1/4] Cargando datos...")
     df = pd.read_csv('data_process/datos_heladas_puno_REAL.csv')
     df['fecha'] = pd.to_datetime(df['fecha'])
-    df = df.sort_values('fecha')
+    df = df.sort_values(['estacion', 'fecha']).reset_index(drop=True)
     
-    # Usar una sola estación para SARIMAX (modelo univariado con exógenas)
+    # Usar una sola estación para SARIMAX
     estacion = df['estacion'].value_counts().index[0]
     print(f"Usando estación: {estacion}")
     
     df_est = df[df['estacion'] == estacion].copy()
-    df_est = df_est.set_index('fecha')
     
-    # Seleccionar solo columnas numéricas
-    numeric_cols = df_est.select_dtypes(include=[np.number]).columns
-    df_est = df_est[numeric_cols]
+    # Filtrar columnas antes del resampleo para no perder la fecha
+    cols_interes = ['fecha', 'tmin', 'precip', 'tmax', 'amp_termica', 'lat', 'lon']
+    df_est = df_est[cols_interes].set_index('fecha')
     
-    # Resample a diario
-    df_est = df_est.resample('D').mean().dropna()
+    # Asegurar continuidad diaria estricta (Elimina los ValueWarning)
+    df_est = df_est.resample('D').mean()
+    df_est = df_est.ffill()
+    df_est.index.freq = 'D'
     
-    # 2. Preparar datos
-    print("[2/4] Preparando datos...")
+    # 2. Preparar datos & SOLUCIÓN AL DATA LEAKAGE
+    print("[2/4] Generando desfases temporales (Lags)...")
+    
+    # Pasamos las variables exógenas al pasado (datos de ayer)
+    df_est['precip_ayer'] = df_est['precip'].shift(1)
+    df_est['tmax_ayer'] = df_est['tmax'].shift(1)
+    df_est['amp_termica_ayer'] = df_est['amp_termica'].shift(1)
+    
+    # Quitar fila nula inicial por el shift
+    df_est = df_est.dropna()
+    
     y = df_est['tmin']
+    exog = df_est[['precip_ayer', 'tmax_ayer', 'amp_termica_ayer']]
     
-    # Variables exógenas
-    exog = df_est[['precip', 'tmax', 'amp_termica']]
+    # Coordenadas geográficas estables
+    lat_est = df_est['lat'].iloc[0]
+    lon_est = df_est['lon'].iloc[0]
     
-    # Dividir datos
-    train_size = int(len(y) * 0.8)
-    y_train = y[:train_size]
-    y_test = y[train_size:]
-    exog_train = exog[:train_size]
-    exog_test = exog[train_size:]
+    # División Temporal Sincronizada (Prueba >= 2015)
+    df_est['year'] = df_est.index.year
+    train_mask = df_est['year'] < 2015
+    test_mask = df_est['year'] >= 2015
     
-    print(f"Entrenamiento: {len(y_train)} días")
-    print(f"Prueba: {len(y_test)} días")
+    y_train, y_test = y[train_mask], y[test_mask]
+    exog_train, exog_test = exog[train_mask], exog[test_mask]
     
-    # 3. Entrenar SARIMAX
-    print("[3/4] Entrenando SARIMAX (esto puede tardar)...")
-    print("Usando parámetros simplificados para velocidad...")
+    print(f"  Entrenamiento (< 2015): {len(y_train)} días")
+    print(f"  Prueba (>= 2015): {len(y_test)} días")
     
-    # SARIMAX(p,d,q)(P,D,Q,s)
-    # Simplificado: (1,0,1)(1,0,1,365) - estacionalidad anual
+    if len(y_test) == 0:
+        print("[ERROR] El set de prueba está vacío. Verifica las fechas.")
+        return
+    
+    # 3. Entrenar SARIMAX (Versión matemática veloz y estable)
+    print("[3/4] Entrenando SARIMAX en CPU...")
     try:
+        # Nota científica: Al incluir regresores de alta calidad desfasados,
+        # no requerimos seasonal_order=365 porque los regresores ya traen la estacionalidad.
         model = SARIMAX(
             y_train,
             exog=exog_train,
-            order=(1, 0, 1),
-            seasonal_order=(1, 0, 1, 365),
+            order=(1, 1, 1),
+            seasonal_order=(0, 0, 0, 0),
             enforce_stationarity=False,
             enforce_invertibility=False
         )
         
+        # Maxiter limitado a 50 para convergencia rápida
         results = model.fit(disp=False, maxiter=50)
-        print("Modelo entrenado exitosamente")
+        print("  Modelo entrenado exitosamente.")
     except Exception as e:
-        print(f"[ERROR] No se pudo entrenar SARIMAX: {e}")
-        print("Usando versión simplificada sin estacionalidad...")
-        try:
-            model = SARIMAX(
-                y_train,
-                exog=exog_train,
-                order=(1, 0, 1),
-                seasonal_order=(0, 0, 0, 0),
-                enforce_stationarity=False
-            )
-            results = model.fit(disp=False, maxiter=50)
-            print("Modelo simplificado entrenado")
-        except Exception as e2:
-            print(f"[ERROR] No se pudo entrenar ni versión simplificada: {e2}")
-            return
+        print(f"[ERROR] Error al entrenar SARIMAX: {e}")
+        return
     
     # 4. Predecir
-    print("[4/4] Realizando predicciones...")
+    print("[4/4] Realizando predicciones sobre matriz de prueba...")
     predictions = results.get_forecast(steps=len(y_test), exog=exog_test)
     y_pred = predictions.predicted_mean
+    y_pred.index = y_test.index  # Sincronizar índices de tiempo
     
-    # Calcular helada (tmin <= 0)
-    y_test_helada = (y_test <= 0).astype(int)
-    y_pred_helada = (y_pred <= 0).astype(int)
+    # Clasificación binaria (Umbral <= 0°C)
+    y_test_helada = (y_test.values <= 0).astype(int)
+    y_pred_helada = (y_pred.values <= 0).astype(int)
     
     # Métricas
-    from sklearn.metrics import f1_score, mean_squared_error
-    f1 = f1_score(y_test_helada, y_pred_helada)
-    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    f1 = f1_score(y_test_helada, y_pred_helada, zero_division=0)
+    rmse = np.sqrt(mean_squared_error(y_test.values, y_pred.values))
     
-    print(f"\n" + "="*70)
-    print(f"RESULTADOS SARIMAX")
-    print(f"="*70)
+    print("\n" + "="*70)
+    print("RESULTADOS SARIMAX")
+    print("="*70)
     print(f"F1-Score (heladas): {f1:.4f}")
     print(f"RMSE (temperatura): {rmse:.4f}°C")
     
-    # Guardar predicciones
+    # 5. Guardar predicciones estructuradas para el ensamble
     resultados = pd.DataFrame({
-        'fecha': y_test.index,
+        'fecha': y_test.index.strftime('%Y-%m-%d'),
         'tmin_real': y_test.values,
         'tmin_pred': y_pred.values,
-        'helada_real': y_test_helada.values,
-        'helada_pred': y_pred_helada.values,
-        'prob_helada': (1 - y_pred / 10).clip(0, 1)  # Probabilidad aproximada
+        'helada_real': y_test_helada,
+        'helada_pred': y_pred_helada,
+        # Probabilidad suavizada basada en la aproximación de la curva de predicción
+        'prob_helada_sarimax': (1 / (1 + np.exp(y_pred.values))).clip(0, 1)
     })
-    resultados['lat'] = df_est['lat'].iloc[0]
-    resultados['lon'] = df_est['lon'].iloc[0]
+    resultados['lat'] = round(lat_est, 2)
+    resultados['lon'] = round(lon_est, 2)
     
     resultados.to_csv('data_process/predictions_sarimax.csv', index=False)
-    print(f"\n[OK] Predicciones SARIMAX guardadas en: data_process/predictions_sarimax.csv")
+    print(f"\n[OK] Predicciones guardadas en: data_process/predictions_sarimax.csv")
 
 if __name__ == '__main__':
     train_sarimax()
