@@ -4,7 +4,7 @@ Configuración de logging estructurado para el proyecto
 import logging
 import logging.handlers
 from pathlib import Path
-import config
+import scripts.config as config
 
 def setup_logging(name=__name__, log_level=config.LOG_LEVEL):
     """

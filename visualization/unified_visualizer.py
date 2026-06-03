@@ -12,8 +12,8 @@ import logging
 # Agregar rutas al path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-import config
-from logging_config import setup_logging
+import scripts.config as config
+from scripts.logging_config import setup_logging
 
 logger = setup_logging(__name__)
 

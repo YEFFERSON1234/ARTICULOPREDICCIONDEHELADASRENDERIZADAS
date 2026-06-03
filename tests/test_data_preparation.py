@@ -12,7 +12,7 @@ import numpy as np
 # Agregar ruta al path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-import config
+import scripts.config as config
 
 
 class TestDataIntegrity(unittest.TestCase):

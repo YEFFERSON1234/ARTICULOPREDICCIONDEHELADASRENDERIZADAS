@@ -53,7 +53,7 @@ def check_data_files():
     """Verifica disponibilidad de archivos de datos"""
     print_header("3️⃣  Verificando archivos de datos")
     
-    import config
+    import scripts.config as config
     
     files_to_check = {
         config.SENAMHI_CSV: "SENAMHI (crítico)",
@@ -78,7 +78,7 @@ def check_models_dir():
     """Verifica directorio de modelos"""
     print_header("4️⃣  Verificando directorio de modelos")
     
-    import config
+    import scripts.config as config
     
     if not config.MODELS_DIR.exists():
         config.MODELS_DIR.mkdir(parents=True, exist_ok=True)
@@ -113,7 +113,7 @@ def run_quick_test():
     print_header("6️⃣  Ejecutando test rápido de datos")
     
     try:
-        import config
+        import scripts.config as config
         from tests.test_data_preparation import TestDataIntegrity
         import unittest
         

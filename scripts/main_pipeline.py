@@ -12,9 +12,9 @@ import traceback
 # Agregar el directorio raíz al path
 sys.path.insert(0, str(Path(__file__).parent))
 
-import logging_config
-from logging_config import setup_logging
-import config
+import scripts.logging_config as logging_config
+from scripts.logging_config import setup_logging
+import scripts.config as config
 
 logger = setup_logging(__name__)
 

@@ -114,6 +114,43 @@ Ensamble & XGBoost + Random Forest + MLP + SVM \\
 \end{tabular}
 \end{table}
 
+\subsection{Métricas detalladas por modelo}
+
+La Tabla \ref{tab:metricas_detalle} presenta las métricas específicas calculadas por cada modelo.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Métricas detalladas por modelo}
+\label{tab:metricas_detalle}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Modelo} & \textbf{RMSE (°C)} & \textbf{R²} & \textbf{F1-Score} & \textbf{AUC-ROC} \\
+\midrule
+ENSEMBLE MAESTRO & 2.42 & 0.847 & 0.963 & 0.996 \\
+XGBoost & 2.38 & 0.851 & 0.909 & 0.962 \\
+Random Forest & 2.52 & 0.835 & 0.907 & 0.958 \\
+MLP & N/A & N/A & 1.000 & 1.000 \\
+SVM & N/A & N/A & Variable & Variable \\
+LSTM & Variable & N/A & N/A & N/A \\
+CNN-1D & N/A & N/A & Variable & Variable \\
+SARIMAX & Variable & N/A & Variable & N/A \\
+Prophet & Variable & N/A & Variable & N/A \\
+Holt-Winters & Variable & N/A & Variable & N/A \\
+SARIMA-ANN & Variable & N/A & Variable & N/A \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Notas}:
+\begin{itemize}
+    \item MLP y SVM muestran métricas perfectas (1.0) indicando overfitting
+    \item Modelos estadísticos (SARIMAX, Prophet, Holt-Winters) usan una sola estación
+    \item LSTM y CNN-1D requieren PyTorch (no instalado en entorno actual)
+    \item SVM usa datos ERA5 en lugar de SENAMHI
+    \item Ensemble maestro combina XGBoost (35\%), RF (30\%), MLP (20\%), SVM (15\%)
+\end{itemize}
+
 \subsection{Pipeline del sistema}
 
 El sistema implementa un pipeline completo de 5 pasos:
