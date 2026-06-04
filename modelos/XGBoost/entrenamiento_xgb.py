@@ -1,0 +1,193 @@
+import pandas as pd
+import numpy as np
+import os
+import glob
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix, roc_curve, auc
+
+# Verificación e instalación automática de XGBoost si no está presente
+try:
+    from xgboost import XGBClassifier
+except ModuleNotFoundError:
+    import sys
+    import subprocess
+    print("-> Instalando XGBoost automáticamente...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "xgboost"])
+    from xgboost import XGBClassifier
+
+# =====================================================================
+# 1. CONFIGURACIÓN DE RUTAS RELATIVAS (ESTRUCTURA DEL PROYECTO)
+# =====================================================================
+dir_xgb = os.path.dirname(os.path.abspath(__file__))
+raiz_proyecto = os.path.abspath(os.path.join(dir_xgb, "..", ".."))
+
+carpeta_senamhi = os.path.join(raiz_proyecto, 'data', 'datos_senamhi_puno_csv')
+carpeta_era5 = os.path.join(raiz_proyecto, 'data', 'datos_era5_puno_csv')
+carpeta_predicciones = os.path.join(raiz_proyecto, 'Predicciones')
+carpeta_graficos = os.path.join(dir_xgb, 'graficos_resultados')
+
+os.makedirs(carpeta_predicciones, exist_ok=True)
+os.makedirs(carpeta_graficos, exist_ok=True)
+
+# =====================================================================
+# 2. CARGA Y PREPARACIÓN DE DATOS (SENAMHI)
+# =====================================================================
+print("-> [1/5] Cargando datos históricos de SENAMHI...")
+archivos_senamhi = glob.glob(os.path.join(carpeta_senamhi, "*.csv"))
+
+if not archivos_senamhi:
+    print(f"[!] Error: No se encontraron archivos .csv en {carpeta_senamhi}")
+    exit()
+
+list_df_senamhi = []
+for f in archivos_senamhi:
+    df_temp = pd.read_csv(f)
+    df_temp['estacion'] = os.path.basename(f).replace('.csv', '')
+    list_df_senamhi.append(df_temp)
+
+df_senamhi = pd.concat(list_df_senamhi, ignore_index=True)
+df_senamhi = df_senamhi.dropna(subset=['temp_min', 'precipitacion'])
+
+# Definición del Target Binario (Helada: 1 si es menor o igual a 0°C)
+df_senamhi['helada'] = (df_senamhi['temp_min'] <= 0).astype(int)
+
+# Variables predictoras (Alineadas con el experimento de Random Forest)
+X = df_senamhi[['mes', 'precipitacion']] 
+y = df_senamhi['helada']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+
+# =====================================================================
+# 3. ENTRENAMIENTO DEL MODELO (XGBOOST)
+# =====================================================================
+print("-> [2/5] Entrenando Clasificador XGBoost...")
+# Usamos parámetros optimizados para evitar sobreajuste y acelerar con n_jobs=-1
+model_xgb = XGBClassifier(
+    n_estimators=150,
+    max_depth=6,
+    learning_rate=0.05,
+    subsample=0.8,
+    colsample_bytree=0.8,
+    random_state=42,
+    n_jobs=-1,
+    eval_metric='logloss'
+)
+model_xgb.fit(X_train, y_train)
+
+y_pred = model_xgb.predict(X_test)
+y_prob = model_xgb.predict_proba(X_test)[:, 1]
+
+# =====================================================================
+# 4. GENERACIÓN DE MÉTRICAS PARA TU TABLA II
+# =====================================================================
+print("\n" + "="*45 + "\n=== EXTRAE ESTOS DATOS PARA TU TABLA II ===\n" + "="*45)
+tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+tss = (tp / (tp + fn)) + (tn / (tn + fp)) - 1
+
+print(f"Modelo: XGBoost (Frost Detection)")
+print(f"Precision: {precision:.3f}")
+print(f"Recall:    {recall:.3f}")
+print(f"F1-Score:  {f1:.3f}")
+print(f"TSS:       {tss:.3f}")
+print("="*45 + "\n")
+
+# =====================================================================
+# 5. GENERACIÓN DE GRÁFICOS ANALÍTICOS
+# =====================================================================
+print("-> [3/5] Generando y guardando curvas analíticas...")
+
+# Gráfico A: Matriz de Confusión
+plt.figure(figsize=(5, 4))
+sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt='d', cmap='Oranges', 
+            xticklabels=['No Helada', 'Helada'], yticklabels=['No Helada', 'Helada'])
+plt.title('Matriz de Confusión - XGBoost')
+plt.ylabel('Realidad (SENAMHI)')
+plt.xlabel('Predicción (Modelo)')
+plt.tight_layout()
+plt.savefig(os.path.join(carpeta_graficos, 'matriz_confusion.png'))
+plt.close()
+
+# Gráfico B: Curva ROC
+fpr, tpr_roc, _ = roc_curve(y_test, y_prob)
+roc_auc = auc(fpr, tpr_roc)
+plt.figure(figsize=(6, 5))
+plt.plot(fpr, tpr_roc, color='darkred', lw=2, label=f'Curva ROC (AUC = {roc_auc:.3f})')
+plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+plt.xlabel('Tasa de Falsos Positivos')
+plt.ylabel('Tasa de Verdaderos Positivos')
+plt.title('Curva ROC - Detección de Heladas (XGBoost)')
+plt.legend(loc="lower right")
+plt.grid(True, linestyle=':', alpha=0.6)
+plt.tight_layout()
+plt.savefig(os.path.join(carpeta_graficos, 'curva_roc.png'))
+plt.close()
+
+# =====================================================================
+# 6. PREDICCIÓN SOBRE LA GRILLA DE ERA5 Y EXPORTACIÓN FINAL
+# =====================================================================
+print("-> [4/5] Aplicando XGBoost sobre la grilla climática de ERA5...")
+archivos_era5 = glob.glob(os.path.join(carpeta_era5, "*.csv"))
+
+if not archivos_era5:
+    print(f"[!] Alerta: No se encontraron archivos de ERA5 en {carpeta_era5}.")
+    exit()
+
+lista_predicciones = []
+
+for f in archivos_era5:
+    df_era5 = pd.read_csv(f)
+    
+    # Procesamiento temporal seguro usando 'valid_time'
+    df_era5['valid_time'] = pd.to_datetime(df_era5['valid_time'])
+    df_era5['fecha'] = df_era5['valid_time'].dt.date
+    df_era5['mes'] = df_era5['valid_time'].dt.month
+    
+    # Conversión física inmediata de las unidades brutas detectadas
+    df_era5['t2m_celsius'] = df_era5['t2m'] - 273.15
+    df_era5['tp_mm'] = df_era5['tp'] * 1000
+    
+    # Resumen diario por coordenada espacial
+    df_diario = df_era5.groupby(['latitude', 'longitude', 'fecha', 'mes']).agg(
+        temp_min=('t2m_celsius', 'min'),
+        precipitacion=('tp_mm', 'sum')
+    ).reset_index()
+    
+    X_era5 = df_diario[['mes', 'precipitacion']]
+    
+    # Inferencia con XGBoost
+    df_diario['prob_helada'] = model_xgb.predict_proba(X_era5)[:, 1]
+    
+    # Estructura limpia para mapeo
+    df_final_mes = df_diario[['latitude', 'longitude', 'fecha', 'prob_helada', 'temp_min']].copy()
+    df_final_mes = df_final_mes.rename(columns={'latitude': 'Lat', 'longitude': 'Long'})
+    
+    lista_predicciones.append(df_final_mes)
+
+# Consolidar y exportar a la carpeta Predicciones
+print("-> [5/5] Exportando resultados finales a la carpeta Predicciones...")
+if lista_predicciones:
+    df_predictions_total = pd.concat(lista_predicciones, ignore_index=True)
+    
+    # Lo guardamos con un nombre distinto para que puedas comparar los mapas de ambos modelos más tarde
+    ruta_salida_predictions = os.path.join(carpeta_predicciones, 'predictions_xgb.csv')
+    df_predictions_total.to_csv(ruta_salida_predictions, index=False)
+
+    # Gráfico C: Dispersión Final
+    plt.figure(figsize=(6, 5))
+    plt.scatter(df_predictions_total['temp_min'], df_predictions_total['prob_helada'], alpha=0.02, color='coral')
+    plt.axvline(x=0, color='blue', linestyle='--', label='Umbral de Helada (0°C)')
+    plt.xlabel('Temperatura Mínima Diaria ERA5 (°C)')
+    plt.ylabel('Probabilidad de Helada (XGBoost)')
+    plt.title('Gráfica de Dispersión: Probabilidad vs Temp Mínima (XGBoost)')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(os.path.join(carpeta_graficos, 'grafico_dispersion.png'))
+    plt.close()
+    print(f"¡Éxito total! Pipeline de XGBoost completado.")
+else:
+    print("[!] Error: No se pudieron consolidar las inferencias.")
