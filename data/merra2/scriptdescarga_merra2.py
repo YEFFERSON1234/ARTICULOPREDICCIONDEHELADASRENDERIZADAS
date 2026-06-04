@@ -26,8 +26,8 @@ auth = earthaccess.login(strategy="environment")
 puno_bbox = (-71.1, -17.5, -68.8, -13.0)
 
 # Rango temporal de ejemplo (puedes ampliarlo según tus necesidades de entrenamiento)
-fecha_inicio = "2024-02-01"
-fecha_fin = "2024-12-31"
+fecha_inicio = "2023-03-23"
+fecha_fin = "2023-07-31"
 
 print("Buscando gránulos en el catálogo de la NASA...")
 # M2T1NXSLV: Dataset por hora de variables en superficie de MERRA-2
