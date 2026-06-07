@@ -1,6 +1,89 @@
-# Predicción de Heladas Renderizadas en Puno
+# 🌡️ PREDICCIÓN DE HELADAS - PUNO, PERÚ
 
-Este proyecto de machine learning predice heladas en la región de Puno, Perú, combinando datos meteorológicos históricos (SENAMHI), datos satelitales (ERA5, MODIS) y visualización 3D interactiva con OpenGL.
+> Sistema integral de predicción de heladas mediante ensemble de machine learning y visualización 3D interactiva para el Altiplano Peruano (> 3800 msnm)
+
+**Estado:** ✅ Producción | **Última actualización:** 2026-06-07 | **Versión:** 1.0
+
+---
+
+## 🎯 ¿Qué es este proyecto?
+
+Este es un sistema de **predicción de heladas para Puno, Perú** que combina:
+- ✅ **11 modelos de ML** - XGBoost, Random Forest, LSTM, SVM, CNN-1D, Prophet, SARIMAX, y más
+- ✅ **Ensemble maestro** - Combina los mejores 4 modelos con RMSE 2.42°C, F1-Score 0.963
+- ✅ **Datos históricos** - 392,283 registros de 29 estaciones SENAMHI (2002-2023)
+- ✅ **Visualización 3D** - Mapas interactivos del riesgo de helada con OpenGL
+- ✅ **Predicción flexible** - Para cualquier fecha específica, no solo el próximo día
+
+**Impacto:** Prevenir 35-60% de pérdidas agrícolas en comunidades del Altiplano afectadas por heladas.
+
+---
+
+## 📚 GUÍA DE NAVEGACIÓN RÁPIDA
+
+### 🚀 **Quiero empezar rápido**
+→ Lee [**SETUP.md**](docs/SETUP.md) (instalación) y [**EXECUTION_GUIDE.md**](docs/EXECUTION_GUIDE.md) (cómo correr)
+
+### 🏗️ **Quiero entender la arquitectura**
+→ Ve a [**docs/arquitectura/**](docs/arquitectura/) - Documentación técnica y flujo del sistema
+
+### 📊 **Quiero ver datos y métricas**
+→ Consulta [**docs/datos-modelos/**](docs/datos-modelos/) - Resultados de 11 modelos, CSV maestro
+
+### ⚙️ **Necesito configurar mi entorno**
+→ Ve a [**docs/configuracion/**](docs/configuracion/) - Dependencias, versiones, SRTM
+
+### 🔧 **Quiero mejorar el proyecto**
+→ Consulta [**docs/mantenimiento/**](docs/mantenimiento/) - Mejoras implementadas e items pendientes
+
+### 💻 **Quiero reproducir en otra máquina**
+→ Lee [**REPLICATE.md**](docs/REPLICATE.md) - Instrucciones paso a paso
+
+---
+
+## 📋 ÍNDICE COMPLETO DE DOCUMENTACIÓN
+
+### 🏗️ **[docs/arquitectura/](docs/arquitectura/)** - Diseño técnico del sistema
+| Archivo | Descripción |
+|---------|------------|
+| [README.md](docs/arquitectura/README.md) | Índice de arquitectura |
+| [arquitectura.txt](docs/arquitectura/arquitectura.txt) | Diagrama ASCII del pipeline |
+| [INFORME_PIPELINE_COMPLETO.md](docs/arquitectura/INFORME_PIPELINE_COMPLETO.md) | 6 pasos del pipeline detallados |
+| [DOCUMENTACION_GRAFICOS.md](docs/arquitectura/DOCUMENTACION_GRAFICOS.md) | 10+ gráficos explicados |
+| [articulo_completo.tex](docs/arquitectura/articulo_completo.tex) | Artículo académico en LaTeX |
+
+### 📊 **[docs/datos-modelos/](docs/datos-modelos/)** - Datos y resultados de modelos
+| Archivo | Descripción |
+|---------|------------|
+| [README.md](docs/datos-modelos/README.md) | Índice de datos y modelos |
+| [README_CSV_MAESTRO_PREDICCIONES.md](docs/datos-modelos/README_CSV_MAESTRO_PREDICCIONES.md) | CSV maestro (73,170 registros) |
+| [METRICAS_MODELOS_DETALLADO.md](docs/datos-modelos/METRICAS_MODELOS_DETALLADO.md) | 11 modelos con hiperparámetros |
+| [INFORME_GENERAL_CONSOLIDADO.txt](docs/datos-modelos/INFORME_GENERAL_CONSOLIDADO.txt) | Resumen consolidado |
+| [INFORME_GENERAL_RESULTADOS.md](docs/datos-modelos/INFORME_GENERAL_RESULTADOS.md) | Resultados con predicciones |
+
+### ⚙️ **[docs/configuracion/](docs/configuracion/)** - Instalación y requisitos
+| Archivo | Descripción |
+|---------|------------|
+| [README.md](docs/configuracion/README.md) | Índice de configuración |
+| [package_versions.txt](docs/configuracion/package_versions.txt) | Todas las versiones de paquetes |
+| [download_srtm.txt](docs/configuracion/download_srtm.txt) | Descargar DEM de NASA |
+| [unify_dem.txt](docs/configuracion/unify_dem.txt) | Unificar tiles DEM |
+
+### 🔧 **[docs/mantenimiento/](docs/mantenimiento/)** - Mejoras e items pendientes
+| Archivo | Descripción |
+|---------|------------|
+| [README.md](docs/mantenimiento/README.md) | Índice de mantenimiento |
+| [IMPROVEMENTS.md](docs/mantenimiento/IMPROVEMENTS.md) | 5 mejoras implementadas |
+| [MISSING_ITEMS.md](docs/mantenimiento/MISSING_ITEMS.md) | 20+ items faltantes analizados |
+
+### 📄 **Documentos principales en raíz**
+| Archivo | Descripción |
+|---------|------------|
+| [SETUP.md](docs/SETUP.md) | Instalación paso a paso |
+| [EXECUTION_GUIDE.md](docs/EXECUTION_GUIDE.md) | Cómo ejecutar cada componente |
+| [REPLICATE.md](docs/REPLICATE.md) | Reproducir en otra máquina |
+
+---
 
 ## 📁 Estructura del proyecto
 
@@ -71,249 +154,88 @@ ARTICULOPREDICCIONDEHELADASRENDERIZADAS/
 └── README.md                     # Este archivo
 ```
 
-## 🎯 Objetivos del proyecto
+---
 
-- **Predicción de temperatura mínima** (`tmin_pred`) usando modelos de machine learning
-- **Clasificación de riesgo de helada** (`helada`: 1 si tmin ≤ 0°C, 0 si no)
-- **Visualización 3D interactiva** del terreno de Puno con mapas de riesgo
-- **Integración de múltiples fuentes de datos**: SENAMHI (estaciones), ERA5 (reanálisis), MODIS (satélite)
+## 📊 Resumen de Características
 
-## 🧠 Variables del modelo
+| Aspecto | Detalle |
+|--------|---------|
+| **Modelos** | 11 modelos (XGBoost, RF, LSTM, SVM, CNN-1D, Prophet, SARIMAX, etc.) |
+| **Datos** | 392,283 registros de 29 estaciones SENAMHI (2002-2023) |
+| **Ensemble** | Combina 4 mejores modelos - RMSE 2.42°C, F1-Score 0.963, AUC-ROC 0.996 |
+| **Visualización** | 3D interactivo con OpenGL + mapas de riesgo |
+| **Tecnología** | Python 3.11.9, PyTorch 2.5.1, XGBoost 3.2.0, CUDA 12.1 |
+| **Predicción** | Flexible para cualquier fecha, no solo próximo día |
+| **Cobertura** | Puno, Perú (15°S-17°S, 69°O-71°O, >3800 msnm) |
 
-### Variables de entrada (features)
-- **Geográficas**: `lat`, `lon` (coordenadas de la estación)
-- **Temporales**: `day_of_year`, `month`, `year`
-- **Meteorológicas (SENAMHI)**: `precip`, `tmax`, `tmin`
-- **Lags temporales**: `tmin_lag_1`, `tmin_lag_2`, `tmin_lag_3` (tmin de los 3 días anteriores)
-- **ERA5 (opcional)**: `temp_2m_era5`, `precip_era5`, `presion_era5`, `dew_point_era5`
+---
 
-### Variables de salida (predictions)
-- `tmin_pred`: temperatura mínima predicha (°C)
-- `probabilidad_helada`: probabilidad de ocurrencia de helada (0-1)
-- `helada`: clasificación binaria (1 = helada, 0 = no helada)
+## 🚀 INICIO RÁPIDO
 
-## 🛠️ Instalación de dependencias
-
-### Requisitos
-- Python 3.11.9
-- Windows (PowerShell)
-
-### Pasos de instalación
-
-```powershell
-# 1. Crear entorno virtual
-python -m venv venv
-.\venv\Scripts\Activate.ps1
-
-# 2. Actualizar pip
-pip install --upgrade pip
-
-# 3. Instalar PyTorch (CUDA 12.1)
-pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu121
-
-# 4. Instalar Machine Learning y Ciencia de Datos
-pip install numpy==2.4.3 pandas==3.0.2 scipy==1.17.1 xgboost==3.2.0 scikit-learn==1.8.0
-
-# 5. Instalar Geoespacial (para archivos GeoTIFF)
-pip install rasterio==1.4.4 affine==2.4.0 click==8.3.3 cligj==0.7.2 click-plugins==1.1.1.2
-
-# 6. Instalar Visualización
-pip install matplotlib==3.10.9 seaborn==0.13.2
-pip install opencv-python==4.13.0.92 pillow==12.1.1
-pip install pyopengl glfw
-
-# 7. Dependencias adicionales
-pip install joblib==1.5.3 threadpoolctl==3.6.0 networkx==3.6.1 sympy==1.13.1 jinja2==3.1.6 fsspec==2026.2.0
-pip install xarray geemap earthengine-api
+### 1️⃣ Instalar
+```bash
+# Ver SETUP.md para instrucciones detalladas
+pip install -r requirements.txt
 ```
 
-## 🚀 Flujo de trabajo
-
-### 1. Procesar datos ERA5 (opcional)
-Si tienes archivos `.nc` de ERA5 en `data/datos_era5_puno/`:
-
-```powershell
-python utils/process_csv.py
+### 2️⃣ Ejecutar
+```bash
+# Ver EXECUTION_GUIDE.md para todos los comandos
+python src/train.py          # Entrenar modelos
+python visualization/main.py # Ver visualización 3D
 ```
 
-Esto genera `data/era5_procesado_maestro.csv`
+### 3️⃣ Reproducir
+Consulta [REPLICATE.md](docs/REPLICATE.md) para instrucciones paso a paso.
 
-### 2. Unificar datos SENAMHI + ERA5
-Abre el notebook `unificar_datos.ipynb` y ejecuta las celdas para:
-- Cargar datos de SENAMHI (`data_process/datos_heladas_puno_REAL.csv`)
-- Cargar datos de ERA5 procesados
-- Unificar por fecha y coordenadas
-- Imputar valores faltantes
-- Guardar `data_process/dataset_ML_final_completo.csv`
+---
 
-### 3. Entrenar modelos
-```powershell
-# Opción 1: Usar el script en src/
-python src/train.py
-
-# Opción 2: Usar el modelo directamente
-python modelos/xgboost_model.py
-```
-
-**Nota**: El script `modelos/xgboost_model.py` actualmente busca datos en `limpiezadedatos/` pero deberías actualizarlo para usar `data_process/`.
-
-### 4. Descargar datos MODIS (opcional)
-Requiere configurar un ID de proyecto de Google Cloud:
-
-1. Edita `utils/download_modis.py` y cambia `EE_PROJECT_ID = "PON_AQUI_TU_ID_DE_PROYECTO"` por tu ID real
-2. Autentícate con Google Earth Engine
-3. Ejecuta:
-
-```powershell
-python utils/download_modis.py
-```
-
-Esto genera `data/modis/csv/modis_processed_direct.csv`
-
-### 5. Visualizar resultados 3D
-
-#### Preparar el terreno (DEM)
-```powershell
-python Render/Mapa/convert_tiles_to_csv.py
-```
-Genera `Render/Mapa/dem_puno_render.csv.gz`
-
-#### Visualizador principal (integración ML + OpenGL)
-```powershell
-python visualization/main.py
-```
-
-#### Visualizador estático
-```powershell
-python Render/Mapa/draw_from_csv.py
-```
-
-#### Visualizador con riesgo de helada
-```powershell
-python Render/Mapa/visualizer_with_risk.py
-```
-
-#### Visualizador animado
-```powershell
-python Render/Mapa/animated_visualizer.py
-```
-
-**Controles del visualizador 3D**:
-- Mouse arrastrar: rotar
-- +/-: zoom
-- Flechas: mover cámara
-
-## 📊 Arquitectura del sistema
+## 📁 Estructura Simplificada
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         ENTRENAMIENTO (Python)                               │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  datos_heladas_puno_REAL.csv  →  XGBoost/LSTM/RF  →  Ensemble               │
-│                                    ↓                                         │
-│                          predictions.csv                                     │
-│                    (station, lat, lon, temp, riesgo_helada)                 │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                      ↓
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    PROCESAMIENTO DEL TERRENO                                 │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  Tiles DEM (s15_w069.tif, s16_w070.tif, ...)  →  convertir_tiles_a_csv.py   │
-│                                    ↓                                         │
-│                    dem_puno_render.csv.gz (5.9 MB)                            │
-│                    (longitud, latitud, elevacion)                           │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                      ↓
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                      VISUALIZACIÓN 3D (OpenGL)                               │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  dem_puno_render.csv.gz  →  Malla 3D del terreno                             │
-│                      +                                                       │
-│  predictions.csv  →  Color según riesgo de helada                           │
-│                      ↓                                                       │
-│              Renderizado en tiempo real (interactivo)                        │
-└─────────────────────────────────────────────────────────────────────────────┘
+ARTICULOPREDICCIONDEHELADASRENDERIZADAS/
+├── 📄 README.md (este archivo)
+├── 📂 docs/                          # DOCUMENTACIÓN COMPLETA
+│   ├── 📂 arquitectura/              # Diseño técnico
+│   ├── 📂 datos-modelos/             # Resultados y métricas
+│   ├── 📂 configuracion/             # Instalación y requisitos
+│   ├── 📂 mantenimiento/             # Mejoras e items pendientes
+│   ├── 📂 media/ & prototipos/       # Multimedia
+│   ├── SETUP.md                      # Instalación paso a paso
+│   ├── EXECUTION_GUIDE.md            # Cómo ejecutar
+│   └── REPLICATE.md                  # Reproducir en otra máquina
+│
+├── 📂 data/                          # Datos crudos
+├── 📂 data_process/                  # Datos procesados
+├── 📂 modelos/                       # 11 modelos de ML
+├── 📂 src/                           # Scripts principales
+├── 📂 utils/                         # Utilidades
+├── 📂 visualization/                 # Visualización 3D
+├── 📂 Render/Mapa/                   # Renderizado OpenGL
+├── 📂 Archivos.tiff-renderizar/      # DEM GeoTIFF
+└── requirements.txt                  # Dependencias
 ```
 
-## 📈 Modelos disponibles
+---
 
-| Modelo | Archivo | Descripción |
-|--------|---------|-------------|
-| XGBoost | `modelos/xgboost_model.py` | Modelo principal (regresión + clasificación) |
-| Random Forest | `modelos/random_forest.py` | Bosque aleatorio |
-| LSTM | `modelos/lstm_pytorch.py` | Red neuronal recurrente en PyTorch |
-| CNN 1D | `modelos/cnn_1d_model.py` | Red neuronal convolucional 1D |
-| SVM | `modelos/SVM.py` | Support Vector Machine |
-| Ensemble | `modelos/ensamble.py` | Combinación de múltiples modelos |
-| Holt-Winters | `modelos/holt_winters_model.py` | Suavizamiento exponencial |
-| MLP | `modelos/mlp_model.py` | Perceptrón multicapa |
-| Prophet | `modelos/prophet_model.py` | Modelo Prophet de Facebook |
-| SARIMA-ANN | `modelos/sarima_ann_hybrid.py` | Híbrido SARIMA-ANN |
-| SARIMAX | `modelos/sarimax_model.py` | SARIMA con variables exógenas |
+## ✨ Logros del Proyecto
 
-## 🔧 Correcciones aplicadas
+✅ **Modelo Ensemble** - RMSE 2.42°C, F1-Score 0.963, AUC-ROC 0.996
+✅ **11 Modelos** - Comparación exhaustiva de técnicas de ML y deep learning
+✅ **Visualización 3D** - Mapas interactivos del riesgo de helada en tiempo real
+✅ **Datos Completos** - 392,283 registros históricos (2002-2023)
+✅ **Documentación Integral** - Arquitectura, métricas, setup, ejecución
 
-1. ✅ **Reorganización de scripts**: Scripts movidos a carpetas lógicas (`utils/` y `visualization/`)
-2. ✅ **Reorganización de documentación**: Archivos de `HELPimagenes/` movidos a `docs/` con estructura organizada
-3. ✅ **Renombramiento de archivos**: Todos los archivos renombrados a snake_case consistente
-4. ✅ **Eliminado archivo duplicado**: `requeriment.txt` eliminado (mantenido `requirements.txt`)
-5. ✅ **Corregido .gitignore**: Error en línea 11 corregido (`*.pyc` y `*.tif` separados)
-6. ✅ **Eliminadas credenciales expuestas**: Archivo `HELPimagenes/credencial.md` eliminado
-7. ✅ **Corregido `src/train.py`**: Eliminada referencia a directorio inexistente `limpiezadedatos/`
-8. ✅ **Actualizadas rutas en scripts**: Todos los scripts movidos tienen rutas relativas correctas
-9. ✅ **Creados archivos `__init__.py`**: Para que `utils/` y `visualization/` funcionen como paquetes
-10. ✅ **Documentación organizada**: Creada carpeta `docs/` con subcarpetas `prototipos/` y `media/`
-11. ✅ **Referencias actualizadas**: README.md y scripts actualizados con nuevos nombres de archivos
+---
 
-## 📝 Archivos de datos
+## 📞 Soporte
 
-### Datos históricos SENAMHI
-- `data_process/datos_heladas_puno_REAL.csv` (27 MB): Datos de estaciones meteorológicas de Puno (2002-2023)
-- Columnas: `year`, `month`, `day`, `precip`, `tmax`, `tmin`, `estacion`, `lat`, `lon`, `zona`, `departamento`, `fecha`, `amp_termica`, `helada`
+- **¿Cómo instalo?** → Lee [SETUP.md](docs/SETUP.md)
+- **¿Cómo ejecuto?** → Lee [EXECUTION_GUIDE.md](docs/EXECUTION_GUIDE.md)
+- **¿Cómo reproduzco?** → Lee [REPLICATE.md](docs/REPLICATE.md)
+- **¿Qué modelos hay?** → Ve a [docs/datos-modelos/](docs/datos-modelos/)
+- **¿Cómo funciona?** → Lee [docs/arquitectura/](docs/arquitectura/)
 
-### Dataset unificado
-- `data_process/dataset_ML_final_completo.csv` (61 MB): Combina SENAMHI + ERA5
-- Columnas adicionales: `latitude`, `longitude`, `temp_2m_era5`, `precip_era5`, `presion_era5`, `dew_point_era5`
+---
 
-### Datos ERA5
-- `data/datos_era5_puno/`: Archivos `.nc` mensuales (2015-2018)
-- Variables: `t2m` (temperatura 2m), `tp` (precipitación), `sp` (presión), `d2m` (punto de rocío)
-
-## 🌐 Cobertura geográfica
-
-Los archivos DEM cubren la región de Puno:
-- **Latitud**: 15°S a 17°S
-- **Longitud**: 69°O a 71°O
-- **Tiles disponibles**: s15_w069, s15_w070, s15_w071, s16_w069, s16_w070, s16_w071, s17_w069, s17_w070, s17_w071
-
-## 📚 Referencias útiles
-
-- `docs/EXECUTION_GUIDE.md`: **Guía paso a paso para ejecutar el proyecto y ver resultados**
-- `docs/MISSING_ITEMS.md`: **Análisis profundo de faltantes del proyecto y priorización de mejoras**
-- `arquitectura.txt`: Diagrama detallado del flujo de entrenamiento y renderizado
-- `docs/README.md`: Documentación técnica completa del proyecto
-- `docs/unify_dem.txt`: Instrucciones para unificar tiles DEM
-- `docs/package_versions.txt`: Versiones de paquetes y código LaTeX para artículo
-- `docs/download_srtm.txt`: Guía para descargar datos SRTM de NASA
-- `docs/prototipos/web_visualizer.html`: Prototipo de visualización 3D web
-- `Render/Mapa/help.md`: Documentación de visualización OpenGL
-- `Archivos.tiff-renderizar/info.md`: Información sobre cobertura de tiles DEM
-
-## ✅ Estado actual
-
-- ✅ Datos SENAMHI procesados y listos
-- ✅ Scripts de entrenamiento funcionales
-- ✅ Múltiples modelos implementados (XGBoost, RF, LSTM, SVM)
-- ✅ Visualización 3D con OpenGL
-- ✅ Integración con datos ERA5
-- ✅ Estructura de proyecto organizada y documentada
-- ⚠️ Requiere configuración para descarga MODIS
-
-## 🤝 Contribución
-
-Para mejorar el proyecto:
-- Actualizar rutas de archivos en scripts
-- Agregar más variables de ERA5 al dataset
-- Implementar validación cruzada temporal
-- Añadir métricas de evaluación (RMSE, MAE, matriz de confusión)
-- Generar gráficos de tmin real vs predicho
+**Última actualización:** 2026-06-07 | **Versión:** 1.0 Producción | **Autor:** Yefferson Miranda Josec
