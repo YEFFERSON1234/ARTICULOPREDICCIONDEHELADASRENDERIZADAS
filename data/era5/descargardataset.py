@@ -1,11 +1,18 @@
 import cdsapi
 import os
+import sys
 import time
 
-c = cdsapi.Client(
-    url="https://cds.climate.copernicus.eu/api", 
-    key="b7dc4d7a-22b5-49e0-948b-ff80f94f96a1"
-)
+# CDS API credentials must be set via environment variables or ~/.cdsapirc.
+# See .env.example for the required variable names.
+cds_url = os.environ.get("CDS_API_URL", "https://cds.climate.copernicus.eu/api")
+cds_key = os.environ.get("CDS_API_KEY")
+if not cds_key:
+    print("ERROR: Set the CDS_API_KEY environment variable.")
+    print("See .env.example for details.")
+    sys.exit(1)
+
+c = cdsapi.Client(url=cds_url, key=cds_key)
 
 output_dir = 'datos_era5_puno'
 if not os.path.exists(output_dir):

@@ -4,6 +4,15 @@ venv/
 env/
 .env/
 
+# Secrets and credentials (NEVER commit these)
+.env
+*.pem
+*.key
+docs/media/website_credential.png
+
+# CDS API config
+.cdsapirc
+
 # Archivos de sistema
 .DS_Store
 Thumbs.db

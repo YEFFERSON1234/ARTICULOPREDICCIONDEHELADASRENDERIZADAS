@@ -148,8 +148,7 @@ ARTICULOPREDICCIONDEHELADASRENDERIZADAS/
 │   │   └── web_visualizer.html   # Visualizador 3D web
 │   └── media/                    # Archivos multimedia
 │       ├── map_animation.gif
-│       ├── map_animation_animated.gif
-│       └── website_credential.png
+│       └── map_animation_animated.gif
 ├── unificar_datos.ipynb          # Notebook para unificar datos SENAMHI + ERA5
 ├── arquitectura.txt              # Diagrama de arquitectura del sistema
 └── README.md                     # Este archivo

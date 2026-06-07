@@ -1,18 +1,15 @@
 import os
 import sys
-import subprocess
 
 # 1. Configuración de Credenciales de NASA Earthdata
-os.environ["EARTHDATA_USERNAME"] = "wi020"
-os.environ["EARTHDATA_PASSWORD"] = "1234556_n4SAlstm"
+# Credentials must be set via environment variables or a .env file.
+# See .env.example for the required variable names.
+if not os.environ.get("EARTHDATA_USERNAME") or not os.environ.get("EARTHDATA_PASSWORD"):
+    print("ERROR: Set EARTHDATA_USERNAME and EARTHDATA_PASSWORD environment variables.")
+    print("See .env.example for details.")
+    sys.exit(1)
 
-# Verificación e instalación automática de librerías necesarias
-try:
-    import earthaccess
-except ModuleNotFoundError:
-    print("Instalando earthaccess y dependencias automáticamente...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "earthaccess", "xarray", "netcdf4", "pandas", "requests"])
-    import earthaccess
+import earthaccess
 
 import xarray as xr
 import pandas as pd
