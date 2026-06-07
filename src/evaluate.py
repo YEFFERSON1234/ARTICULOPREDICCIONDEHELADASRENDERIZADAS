@@ -23,7 +23,8 @@ def evaluate(predictions_csv, out_dir='graficos_resultados'):
     if 'probabilidad_helada' in df.columns:
         try:
             roc = roc_auc_score(y_frost, df['probabilidad_helada'].values)
-        except Exception:
+        except ValueError as e:
+            print(f"[WARNING] No se pudo calcular AUC-ROC: {e}")
             roc = None
 
     os.makedirs(out_dir, exist_ok=True)

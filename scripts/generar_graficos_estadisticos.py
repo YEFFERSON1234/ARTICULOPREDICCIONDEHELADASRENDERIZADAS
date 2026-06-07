@@ -132,7 +132,8 @@ for nombre, col in modelos.items():
         metricas['F1-Score'].append(f1_score(y_true, y_pred, zero_division=0))
         try:
             metricas['AUC-ROC'].append(roc_auc_score(y_true, y_pred_prob))
-        except:
+        except ValueError as e:
+            print(f"   [WARNING] No se pudo calcular AUC-ROC para {nombre}: {e}")
             metricas['AUC-ROC'].append(0)
 
 # 2.1 Accuracy

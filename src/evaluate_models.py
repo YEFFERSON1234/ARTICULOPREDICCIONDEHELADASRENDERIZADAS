@@ -76,14 +76,16 @@ def evaluate_model(y_true, y_pred, model_name="Model"):
     # AUC-ROC
     try:
         metrics['auc_roc'] = roc_auc_score(y_true, y_pred)
-    except:
+    except ValueError as e:
+        print(f"[WARNING] No se pudo calcular AUC-ROC para {model_name}: {e}")
         metrics['auc_roc'] = 0.0
     
     # AUC-PR (Precision-Recall)
     try:
         precision, recall, _ = precision_recall_curve(y_true, y_pred)
         metrics['auc_pr'] = auc(recall, precision)
-    except:
+    except ValueError as e:
+        print(f"[WARNING] No se pudo calcular AUC-PR para {model_name}: {e}")
         metrics['auc_pr'] = 0.0
     
     # Brier Score

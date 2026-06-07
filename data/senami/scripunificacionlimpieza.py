@@ -77,6 +77,8 @@ def unificar_departamental():
             
         except Exception as e:
             print(f"✗ Error en {estacion}: {e}")
+            import traceback
+            traceback.print_exc()
 
     if data_total:
         df_final = pd.concat(data_total).dropna(subset=['tmin'])

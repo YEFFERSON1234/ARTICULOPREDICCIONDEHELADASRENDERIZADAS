@@ -74,6 +74,8 @@ def procesar_nc_a_csv(ruta_entrada: str, ruta_salida: str):
             
         except Exception as e:
             print(f"  [ERROR] Fallo en {os.path.basename(archivo)}: {e}")
+            import traceback
+            traceback.print_exc()
 
     # 3. Unificar y limpiar
     if not lista_dataframes:

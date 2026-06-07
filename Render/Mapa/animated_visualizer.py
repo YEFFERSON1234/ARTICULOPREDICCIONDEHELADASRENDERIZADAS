@@ -184,7 +184,8 @@ def cargar_frame(indice):
             puntos_pred[:, :2], puntos_pred[:, 2], 
             (X_malla, Y_malla), method='linear', fill_value=0.3
         )
-    except:
+    except (ValueError, IndexError) as e:
+        print(f"   [WARNING] Interpolación falló, usando valor por defecto: {e}")
         riesgo_interpolado = np.full((len(latitudes_filt), len(longitudes_filt)), 0.3)
     
     if factor > 1:

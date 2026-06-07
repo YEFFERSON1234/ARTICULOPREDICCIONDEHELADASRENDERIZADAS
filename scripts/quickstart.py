@@ -139,7 +139,9 @@ def run_quick_test():
     
     except Exception as e:
         print(f"⚠️  Tests deshabilitados: {e}\n")
-        return True
+        import traceback
+        traceback.print_exc()
+        return False
 
 def print_next_steps():
     """Imprime pasos siguientes"""
