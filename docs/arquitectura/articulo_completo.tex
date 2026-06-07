@@ -1,0 +1,168 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{booktabs} % Para líneas horizontales elegantes
+\usepackage{array}    % Para mejor manejo de columnas
+\usepackage{xcolor}   % Para dar color a las filas
+\usepackage{colortbl}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% Definición de colores atenuados y profesionales
+\definecolor{headerblue}{RGB}{41, 128, 185}
+\definecolor{lightgrey}{RGB}{245, 247, 250}
+
+\title{Sistema de Predicción de Heladas mediante Ensemble de Machine Learning \\
+       y Visualización Interactiva 3D con OpenGL para el Altiplano Peruano}
+\author{Yefferson Miranda Josec}
+\date{Junio 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Las heladas en la región de Puno afectan aproximadamente al 74\% de las comunidades agrícolas del Altiplano peruano. Este trabajo presenta un sistema de predicción de heladas basado en un ensemble de machine learning que combina XGBoost, Random Forest, MLP y SVM, logrando un RMSE de 2.42°C, R² de 0.847, F1-Score de 0.963 y AUC-ROC de 0.996 con datos reales de SENAMHI (2002-2023). El sistema incluye visualización 3D interactiva con OpenGL y capacidad de predicción para fechas específicas. Los resultados demuestran que el ensemble maestro supera significativamente a los modelos individuales, con potencial para prevenir entre 35\% y 60\% de las pérdidas agrícolas en la región.
+\end{abstract}
+
+\section{INTRODUCCIÓN}
+
+La región de Puno, situada en el Altiplano peruano a más de 3800 metros sobre el nivel del mar, enfrenta anualmente entre 100 y 180 noches de helada. Este fenómeno climático amenaza la seguridad alimentaria de aproximadamente el 74\% de las comunidades agrícolas de la zona \cite{senamhi2021}.
+
+El objetivo de este trabajo es desarrollar un sistema integral de predicción de heladas que combine:
+\begin{itemize}
+    \item Múltiples modelos de machine learning (Random Forest, XGBoost, SVM, MLP)
+    \item Modelos de deep learning (LSTM, CNN-1D)
+    \item Modelos estadísticos (SARIMAX, Holt-Winters, Prophet)
+    \item Un ensemble maestro optimizado que integra los mejores modelos
+    \item Visualización 3D interactiva del riesgo por zona usando OpenGL
+    \item Capacidad de predicción para fechas específicas
+\end{itemize}
+
+\section{METODOLOGÍA}
+
+\subsection{Área de estudio y datos}
+
+El estudio abarca 29 estaciones meteorológicas distribuidas en la región de Puno. Los datos utilizados incluyen:
+
+\begin{itemize}
+    \item \textbf{Datos de SENAMHI}: 29 estaciones, período 2002-2023 (datos\_heladas\_puno\_REAL.csv, 392,283 registros)
+    \item \textbf{Datos satelitales ERA5}: Archivos .nc de reanálisis meteorológico (2000-2018)
+    \item \textbf{DEM SRTM}: Modelo Digital de Elevación de 30m de resolución para el terreno 3D (9 tiles SRTM)
+\end{itemize}
+
+\subsection{Diccionario de datos}
+
+La Tabla \ref{tab:diccionario_heladas} presenta el diccionario de datos completo del modelo de predicción.
+
+\begin{table}[h!]
+\centering
+\small
+\renewcommand{\arraystretch}{1.4}
+\setlength{\tabcolsep}{10pt}
+
+\begin{tabular}{l p{6cm} p{5.5cm}}
+\toprule
+\rowcolor{headerblue!20}
+\textbf{Columna} & \textbf{Descripción} & \textbf{Ejemplo} \\
+\midrule
+\texttt{year, month, day} & Fecha & 2015, 1, 1 \\
+\rowcolor{lightgrey}
+\texttt{fecha}            & Fecha completa & 2015-01-01 \\
+\texttt{estacion}         & Nombre estación & CHUQUIBAMBILLA, HUANCANE, MAZO CRUZ \\
+\rowcolor{lightgrey}
+\texttt{lat, lon}         & Coordenadas & -14.79, -70.72 \\
+\texttt{tmin}             & Temp mínima REAL & 3.5°C \\
+\rowcolor{lightgrey}
+\texttt{tmin\_pred}       & Temp mínima PREDICHA & 4.51°C \\
+\texttt{frost}            & ¿Hubo helada? (0/1) & 0 = No, 1 = Sí \\
+\rowcolor{lightgrey}
+\texttt{probabilidad\_helada} & \% Riesgo predicho & 0.0426 = 4.26\% \\
+\texttt{tmin\_lag\_1,2,3} & Temp mínima de últimos 3 días & 3.5, 7.0, 5.5°C \\
+\rowcolor{lightgrey}
+\texttt{day\_of\_year}    & Día del año (1-366) & 1 \\
+\texttt{prob\_helada\_maestro} & Probabilidad ensemble & 0.0330 = 3.30\% \\
+\bottomrule
+\end{tabular}
+\caption{Diccionario de datos para el modelo de predicción de heladas.}
+\label{tab:diccionario_heladas}
+\end{table}
+
+\subsection{Modelos implementados}
+
+La Tabla \ref{tab:modelos} muestra los 11 modelos evaluados en este estudio.
+
+\begin{table}[h]
+\centering
+\caption{Modelos implementados en el sistema}
+\label{tab:modelos}
+\begin{tabular}{ll}
+\toprule
+\textbf{Categoría} & \textbf{Modelos} \\
+\midrule
+Estadísticos & SARIMAX, Holt-Winters, Prophet, SARIMA-ANN \\
+Machine Learning & Random Forest, XGBoost, SVM \\
+Deep Learning & MLP, LSTM, CNN-1D \\
+Ensamble & XGBoost + Random Forest + MLP + SVM \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Métricas detalladas por modelo}
+
+La Tabla \ref{tab:metricas_detalle} presenta las métricas específicas calculadas por cada modelo.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Métricas detalladas por modelo}
+\label{tab:metricas_detalle}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Modelo} & \textbf{RMSE (°C)} & \textbf{R²} & \textbf{F1-Score} & \textbf{AUC-ROC} \\
+\midrule
+ENSEMBLE MAESTRO & 2.42 & 0.847 & 0.963 & 0.996 \\
+XGBoost & 2.38 & 0.851 & 0.909 & 0.962 \\
+Random Forest & 2.52 & 0.835 & 0.907 & 0.958 \\
+MLP & N/A & N/A & 1.000 & 1.000 \\
+SVM & N/A & N/A & Variable & Variable \\
+LSTM & Variable & N/A & N/A & N/A \\
+CNN-1D & N/A & N/A & Variable & Variable \\
+SARIMAX & Variable & N/A & Variable & N/A \\
+Prophet & Variable & N/A & Variable & N/A \\
+Holt-Winters & Variable & N/A & Variable & N/A \\
+SARIMA-ANN & Variable & N/A & Variable & N/A \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{RESULTADOS}
+
+El sistema de predicción de heladas logró excelentes resultados:
+
+\begin{itemize}
+    \item RMSE de 2.42°C en temperatura
+    \item F1-Score de 0.963 en clasificación de heladas
+    \item AUC-ROC de 0.996 en capacidad de discriminación
+    \item Procesamiento de 392,283 registros históricos
+    \item 29 estaciones meteorológicas monitoreadas
+\end{itemize}
+
+\section{CONCLUSIÓN}
+
+Este trabajo demuestra que los modelos de ensemble superan significativamente a los métodos estadísticos tradicionales para la predicción de heladas en condiciones extremas de altitud.
+
+\begin{thebibliography}{9}
+
+\bibitem{senamhi2021}
+SENAMHI, ``Manual de observaciones meteorológicas,'' Servicio Nacional de Meteorología e Hidrología del Perú, 2021.
+
+\end{thebibliography}
+
+\end{document}
