@@ -22,8 +22,8 @@ logger = setup_logging(__name__)
 try:
     from src.train import train_models, prepare_features as prepare_features_train
     from src.predict import predict
-    from data_process.prepare_data import main as prepare_data_main
-    from data_process.unify_data import main as unify_data_main
+    from scripts.prepare_data import main as prepare_data_main
+    from scripts.unify_data import main as unify_data_main
 except ImportError as e:
     logger.warning(f"No se pudieron importar algunos módulos: {e}")
 
