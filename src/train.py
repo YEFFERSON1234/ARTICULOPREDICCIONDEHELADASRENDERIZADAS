@@ -1,20 +1,11 @@
 import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import pandas as pd
 import joblib
 import xgboost as xgb
-
-
-def prepare_features(df):
-    df = df.copy()
-    df['fecha'] = pd.to_datetime(df['fecha'])
-    df = df.sort_values(['estacion', 'fecha']).reset_index(drop=True)
-    df['day_of_year'] = df['fecha'].dt.dayofyear
-    df['month'] = df['fecha'].dt.month
-    df['year'] = df['fecha'].dt.year
-    for lag in [1, 2, 3]:
-        df[f'tmin_lag_{lag}'] = df.groupby('estacion')['tmin'].shift(lag)
-    df = df.dropna()
-    return df
+from utils.data_loading import prepare_features, DEFAULT_FEATURE_COLS, temporal_train_test_split
 
 
 def train_models(csv_path, models_dir='models'):
@@ -22,15 +13,11 @@ def train_models(csv_path, models_dir='models'):
     df = pd.read_csv(csv_path)
     df = prepare_features(df)
 
-    feature_cols = ['lat', 'lon', 'day_of_year', 'month', 'precip', 'tmax',
-                    'tmin_lag_1', 'tmin_lag_2', 'tmin_lag_3']
-    X = df[feature_cols]
+    X = df[DEFAULT_FEATURE_COLS]
     y_reg = df['tmin']
     y_clf = (df['tmin'] <= 0).astype(int)
 
-    ultimo_anio = df['year'].max()
-    train_mask = df['year'] < ultimo_anio
-
+    train_mask, _ = temporal_train_test_split(df)
     X_train = X[train_mask]
     y_reg_train = y_reg[train_mask]
     y_clf_train = y_clf[train_mask]
@@ -51,5 +38,5 @@ def train_models(csv_path, models_dir='models'):
 if __name__ == '__main__':
     csv_path = os.path.join('data_process', 'datos_heladas_puno_REAL.csv')
     if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"No se encontró {csv_path}")
+        raise FileNotFoundError(f"No se encontro {csv_path}")
     train_models(csv_path)
