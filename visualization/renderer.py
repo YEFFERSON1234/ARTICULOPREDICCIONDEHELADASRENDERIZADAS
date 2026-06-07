@@ -119,8 +119,12 @@ class Renderer:
             df = pd.read_csv(predictions_path)
             self.frost_data = df
             print(f"[Renderer] Predicciones cargadas: {len(df)} registros")
+        except FileNotFoundError:
+            print(f"[WARNING] Archivo de predicciones no encontrado: {predictions_path}")
+            print("[WARNING] El renderizado continuará sin datos de heladas")
         except Exception as e:
             print(f"[WARNING] No se pudieron cargar predicciones: {e}")
+            print("[WARNING] El renderizado continuará sin datos de heladas")
     
     def get_frost_color(self, prob_helada):
         """

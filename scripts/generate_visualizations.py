@@ -53,8 +53,11 @@ print("3. Cargando comparación de modelos...")
 try:
     model_comparison = pd.read_csv(f'{base_path}/comparacion_modelos.csv', index_col=0)
     print(f"   - Modelos: {list(model_comparison.columns)}")
-except:
+except FileNotFoundError:
     print("   - Archivo de comparación no encontrado")
+    model_comparison = None
+except Exception as e:
+    print(f"   - Error al cargar comparación de modelos: {e}")
     model_comparison = None
 
 # 4. CARGAR PREDICCIONES DE OTROS MODELOS
@@ -80,8 +83,10 @@ for model_name, filename in model_files.items():
             prob_col = [col for col in df.columns if 'prob' in col.lower()][0]
             model_predictions[model_name] = df[prob_col].values
         print(f"   - {model_name}: OK")
+    except FileNotFoundError:
+        print(f"   - {model_name}: Archivo no encontrado ({filename})")
     except Exception as e:
-        print(f"   - {model_name}: No encontrado")
+        print(f"   - {model_name}: Error al cargar - {e}")
 
 # ============================================================================
 # GRÁFICO 1: CURVA ROC
@@ -103,8 +108,8 @@ for idx, (model_name, y_pred_model) in enumerate(model_predictions.items()):
         roc_auc_m = auc(fpr_m, tpr_m)
         ax.plot(fpr_m, tpr_m, linewidth=2, label=f'{model_name} (AUC = {roc_auc_m:.4f})', 
                 color=colors[idx], alpha=0.7)
-    except:
-        pass
+    except ValueError as e:
+        print(f"   [WARNING] No se pudo generar curva ROC para {model_name}: {e}")
 
 ax.set_xlim([0.0, 1.0])
 ax.set_ylim([0.0, 1.05])
@@ -202,8 +207,8 @@ for idx, (model_name, y_pred_model) in enumerate(model_predictions.items()):
         pr_auc_m = auc(recall_m, precision_m)
         ax.plot(recall_m, precision_m, linewidth=2, label=f'{model_name} (AUC = {pr_auc_m:.4f})',
                 color=colors[idx], alpha=0.7)
-    except:
-        pass
+    except ValueError as e:
+        print(f"   [WARNING] No se pudo generar curva PR para {model_name}: {e}")
 
 ax.set_xlim([0.0, 1.0])
 ax.set_ylim([0.0, 1.05])
@@ -482,8 +487,10 @@ for model_name in sorted(model_predictions.keys()):
         fpr_m, tpr_m, _ = roc_curve(y_true, y_pred_model)
         auc_m = auc(fpr_m, tpr_m)
         print(f"  - {model_name:12s}: Accuracy={acc_m:.4f}, F1={f1_m:.4f}, AUC={auc_m:.4f}")
-    except:
-        pass
+    except ValueError as e:
+        print(f"  - {model_name:12s}: Error al calcular métricas - {e}")
+    except Exception as e:
+        print(f"  - {model_name:12s}: Error inesperado - {e}")
 
 print(f"\n{'='*60}")
 print(f"Gráficos guardados en: {os.path.abspath(output_dir)}")

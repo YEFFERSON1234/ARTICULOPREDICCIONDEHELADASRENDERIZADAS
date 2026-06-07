@@ -52,5 +52,7 @@ for index, ruta_nc in enumerate(archivos_nc):
             
     except Exception as e:
         print(f"   [!] Error al convertir el archivo {nombre_base}: {e}")
+        import traceback
+        traceback.print_exc()
 
 print("-"*50 + "\n¡Proceso finalizado! Todos los días de MERRA-2 están migrados a formato CSV.")

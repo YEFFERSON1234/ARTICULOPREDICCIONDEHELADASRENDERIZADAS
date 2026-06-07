@@ -45,6 +45,8 @@ for modelo, archivo in modelo_archivos.items():
         df = pd.read_csv(f'{base_path}/{archivo}')
         predicciones[modelo] = df
         print(f"   ✓ {modelo.upper()}: {len(df)} registros")
+    except FileNotFoundError:
+        print(f"   ✗ {modelo.upper()}: Archivo no encontrado ({archivo})")
     except Exception as e:
         print(f"   ✗ {modelo.upper()}: Error - {e}")
 
@@ -53,6 +55,8 @@ try:
     ensemble_df = pd.read_csv(f'{base_path}/predictions_ensemble.csv')
     predicciones['ensemble'] = ensemble_df
     print(f"   ✓ ENSEMBLE: {len(ensemble_df)} registros")
+except FileNotFoundError:
+    print(f"   ✗ ENSEMBLE: Archivo no encontrado (predictions_ensemble.csv)")
 except Exception as e:
     print(f"   ✗ ENSEMBLE: Error - {e}")
 

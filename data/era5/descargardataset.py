@@ -53,6 +53,8 @@ for year in range(2015, 2018):
             print(f"   [OK] Guardado: {filename}")
         except Exception as e:
             print(f"   [!] Fallo en {year} - Mes {month_str}: {e}")
+            import traceback
+            traceback.print_exc()
         
         # Pausa crucial para la cola del servidor de Copernicus
         time.sleep(10)

@@ -26,6 +26,7 @@ try:
     from scripts.unify_data import main as unify_data_main
 except ImportError as e:
     logger.warning(f"No se pudieron importar algunos módulos: {e}")
+    logger.warning("Algunas funciones del pipeline pueden no estar disponibles")
 
 
 class FrostPredictionPipeline:

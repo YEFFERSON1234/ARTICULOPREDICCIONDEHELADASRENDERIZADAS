@@ -116,6 +116,9 @@ def extraer_modis_a_csv(ee):
         
     except Exception as e:
         print(f"\n[ERROR CRÍTICO] Hubo un problema al procesar los datos espaciales: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
 
 def main():
     print("\n" + "="*70)

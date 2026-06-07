@@ -88,6 +88,8 @@ for i, url in enumerate(download_urls):
             
     except Exception as e:
         print(f"-> Error procesando el archivo {i+1}: {e}")
+        import traceback
+        traceback.print_exc()
         
     finally:
         # Eliminación estricta del archivo global temporal para no saturar el almacenamiento
@@ -95,6 +97,6 @@ for i, url in enumerate(download_urls):
             try:
                 os.remove(temp_file)
             except PermissionError:
-                pass 
+                print(f"[WARNING] No se pudo eliminar archivo temporal: {temp_file}")
 
 print("\n¡Proceso finalizado con éxito! Los datos optimizados de Puno están listos para tu modelo.")
