@@ -97,7 +97,7 @@ class Renderer:
             terrain_path: Ruta al archivo .npy con vértices
         """
         try:
-            self.vertices = np.load(terrain_path)
+            self.vertices = np.load(terrain_path, allow_pickle=False)
             print(f"[Renderer] Terreno cargado: {len(self.vertices)} vértices")
         except FileNotFoundError:
             # Si no existe el archivo .npy, generar desde TerrainMesh

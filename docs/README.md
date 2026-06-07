@@ -17,7 +17,6 @@ Esta carpeta contiene documentación técnica y recursos de apoyo para el proyec
 ### Multimedia
 - **`media/map_animation.gif`**: Animación/grabación de visualización del mapa de heladas.
 - **`media/map_animation_animated.gif`**: Animación/grabación adicional del mapa con animación.
-- **`media/website_credential.png`**: Captura de pantalla de credenciales para acceso a servicios web.
 
 ## 📝 Uso
 

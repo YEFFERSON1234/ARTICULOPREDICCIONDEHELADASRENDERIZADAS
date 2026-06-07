@@ -7,15 +7,7 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, roc_curve, auc
 
-# Verificación e instalación automática de XGBoost si no está presente
-try:
-    from xgboost import XGBClassifier
-except ModuleNotFoundError:
-    import sys
-    import subprocess
-    print("-> Instalando XGBoost automáticamente...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "xgboost"])
-    from xgboost import XGBClassifier
+from xgboost import XGBClassifier
 
 # =====================================================================
 # 1. CONFIGURACIÓN DE RUTAS RELATIVAS (ESTRUCTURA DEL PROYECTO)
