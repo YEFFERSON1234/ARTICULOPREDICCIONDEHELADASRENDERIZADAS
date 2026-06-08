@@ -5,7 +5,7 @@ from sklearn.metrics import mean_squared_error, r2_score, f1_score
 
 # 1. CARGA
 print("Cargando base de datos real de Puno...")
-df = pd.read_csv('data_process/datos_heladas_puno_REAL.csv')
+df = pd.read_csv('data_process/dataset_ML_final_completo.csv')
 df['fecha'] = pd.to_datetime(df['fecha'])
 df['frost'] = (df['tmin'] <= 0).astype(int)
 df = df.sort_values(['estacion', 'fecha']).reset_index(drop=True)

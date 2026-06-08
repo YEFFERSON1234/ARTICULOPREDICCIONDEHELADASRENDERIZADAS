@@ -47,7 +47,7 @@ def predict(csv_path, models_dir='models', out_path='data_process/predictions_pi
 if __name__ == '__main__':
     csv_path = os.path.join('data_process', 'datos_heladas_puno_REAL.csv')
     if not os.path.exists(csv_path):
-        csv_path = os.path.join('limpiezadedatos', 'datos_heladas_puno_REAL.csv')
+        csv_path = os.path.join('data_process', 'dataset_ML_final_completo.csv')
     if not os.path.exists(csv_path):
         raise FileNotFoundError(f"No se encontró {csv_path}")
     predict(csv_path)

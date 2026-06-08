@@ -24,7 +24,9 @@ def plot_tmin_vs_pred(predictions_csv, out_png='graficos_resultados/pipeline_tmi
 if __name__ == '__main__':
     pred_csv = os.path.join('data_process', 'predictions_pipeline.csv')
     if not os.path.exists(pred_csv):
-        pred_csv = os.path.join('limpiezadedatos', 'predictions.csv')
+        pred_csv = os.path.join('data_process', 'predictions.csv')
+    if not os.path.exists(pred_csv):
+        pred_csv = os.path.join('Predicciones', 'Historicas', 'predictions_historicas.csv')
     if not os.path.exists(pred_csv):
         raise FileNotFoundError('No se encontró archivo de predicciones para visualizar.')
     plot_tmin_vs_pred(pred_csv)
