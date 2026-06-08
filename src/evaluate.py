@@ -43,7 +43,9 @@ def evaluate(predictions_csv, out_dir='graficos_resultados'):
 if __name__ == '__main__':
     pred_csv = os.path.join('data_process', 'predictions_pipeline.csv')
     if not os.path.exists(pred_csv):
-        pred_csv = os.path.join('limpiezadedatos', 'predictions.csv')
+        pred_csv = os.path.join('data_process', 'predictions.csv')
+    if not os.path.exists(pred_csv):
+        pred_csv = os.path.join('Predicciones', 'Historicas', 'predictions_historicas.csv')
     if not os.path.exists(pred_csv):
         raise FileNotFoundError('No se encontró archivo de predicciones para evaluar.')
     evaluate(pred_csv)
