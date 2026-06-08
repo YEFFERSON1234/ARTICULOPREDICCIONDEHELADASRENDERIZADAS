@@ -55,7 +55,7 @@ Distribución por mes (histórico):
 - Marzo: 11.80%
 - Abril: 22.20%
 - Mayo: 89.20%
-- Junio: 97.80% ← Mayor frecuencia
+- Junio: 97.80%
 - Julio: 98.90% ← MÁXIMO
 - Agosto: 91.40%
 - Septiembre: 74.40%

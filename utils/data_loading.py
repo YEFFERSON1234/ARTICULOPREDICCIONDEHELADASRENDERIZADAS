@@ -25,7 +25,7 @@ def configure_encoding():
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 
-def load_senamhi_data(csv_path='data_process/datos_heladas_puno_REAL.csv',
+def load_senamhi_data(csv_path='data_process/dataset_ML_final_completo.csv',
                       sort_by=None, add_frost_col=True):
     """Load the consolidated SENAMHI CSV and perform common preprocessing.
 
