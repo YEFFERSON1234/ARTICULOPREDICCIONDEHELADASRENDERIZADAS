@@ -62,11 +62,13 @@ ARTICULOPREDICCIONDEHELADASRENDERIZADAS/
 │   ├── Mapas_Renderizados/           # Mapas geográficos
 │   └── README.md                     # Documentación de modelos
 │
-├── graficos_resultados/              # Gráficos generales
-│   ├── 01_curva_roc.png
-│   ├── 02_matriz_confusion.png
-│   ├── [otros gráficos generales...]
-│   └── graficosResultados2/          # Gráficos secundarios
+├── graficos_generales/               # Gráficos generales organizados
+│   ├── metricas/                     # Métricas de rendimiento
+│   └── analisis/                     # Análisis exploratorio
+│
+├── graficos_predicciones/            # Gráficos de predicciones
+│   ├── futuras/                      # Predicciones a futuro
+│   └── mapas/                        # Mapas de riesgo y temperatura
 │
 ├── data/                             # Datos brutos
 │   └── data_merra2_puno/             # Datos MERRA-2 de Puno
@@ -105,7 +107,22 @@ Se corrigieron las rutas en los siguientes scripts para eliminar dependencias de
 - `src/predict.py`: Rutas actualizadas para buscar en `data_process/`
 - `src/evaluate.py`: Rutas actualizadas para buscar en `data_process/` y `Predicciones/`
 
-### 4. Script de Generación de Gráficos
+### 4. Organización de Imágenes
+- **Nueva estructura de gráficos organizados:**
+  - `graficos_generales/` - Gráficos generales del proyecto
+    - `metricas/` - 17 archivos de métricas de rendimiento
+    - `analisis/` - 11 archivos de análisis exploratorio
+  - `graficos_predicciones/` - Gráficos de predicciones
+    - `futuras/` - 3 archivos de predicciones futuras
+    - `mapas/` - 8 archivos de mapas de riesgo y temperatura
+- **Documentación creada:**
+  - `graficos_generales/README.md` - Documentación de gráficos generales
+  - `graficos_predicciones/README.md` - Documentación de gráficos de predicciones
+- **Limpieza realizada:**
+  - Eliminadas carpetas vacías `graficosResultados2/graficos2/`
+  - Reorganizadas 39 imágenes de carpetas anteriores
+
+### 5. Script de Generación de Gráficos
 - **Nuevo script** `src/generate_missing_plots.py`:
   - Genera curvas ROC para modelos que no tienen
   - Genera matrices de confusión
@@ -151,6 +168,9 @@ Para los modelos que tengan archivos de predicciones disponibles en `data_proces
 - Scripts con rutas corregidas
 - Directorios de modelos completos
 - Documentación de estructura
+- **Imágenes completamente organizadas por categoría**
+- **39 imágenes reorganizadas en carpetas lógicas**
+- **Documentación de gráficos creada**
 
 ✅ **Listo para uso:**
 - Todos los scripts principales funcionan con las nuevas rutas

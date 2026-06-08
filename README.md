@@ -98,6 +98,25 @@ ARTICULOPREDICCIONDEHELADASRENDERIZADAS/
 │   ├── dataset_ML_final_completo.csv  # Dataset unificado (SENAMHI + ERA5)
 │   ├── predictions.csv           # Predicciones finales
 │   └── lstm_puno_v1.pth          # Modelo LSTM entrenado
+├── Predicciones/                 # Predicciones organizadas por categoría
+│   ├── Futuras/                  # Predicciones a futuro (30 días, fechas específicas)
+│   ├── Historicas/               # Predicciones históricas validadas
+│   └── Por_Modelo/               # Predicciones desglosadas por cada modelo
+├── modelos/                      # Modelos y visualizaciones organizadas
+│   ├── XGBoost/graficos_resultados/    # Gráficos específicos XGBoost
+│   ├── RandomForest/graficos_resultados/ # Gráficos específicos RF
+│   ├── SVM/graficos_resultados/        # Gráficos específicos SVM
+│   ├── MLP/graficos_resultados/        # Gráficos específicos MLP
+│   ├── Ensemble/graficos_resultados/   # Gráficos específicos Ensemble
+│   ├── Comparacion_Resultados/         # Comparativas entre modelos
+│   ├── Mapas_Renderizados/             # Mapas geográficos
+│   └── README.md                       # Documentación de modelos
+├── graficos_generales/           # Gráficos generales organizados
+│   ├── metricas/                     # Métricas de rendimiento (17 archivos)
+│   └── analisis/                     # Análisis exploratorio (11 archivos)
+├── graficos_predicciones/        # Gráficos de predicciones
+│   ├── futuras/                      # Predicciones a futuro (3 archivos)
+│   └── mapas/                        # Mapas de riesgo y temperatura (8 archivos)
 ├── modelos/                      # Modelos de ML
 │   ├── xgboost_model.py          # Modelo XGBoost principal
 │   ├── random_forest.py           # Random Forest
@@ -114,7 +133,8 @@ ARTICULOPREDICCIONDEHELADASRENDERIZADAS/
 │   ├── train.py                  # Entrenamiento de modelos
 │   ├── predict.py                # Predicción
 │   ├── evaluate.py               # Evaluación de métricas
-│   └── visualize.py              # Visualización de resultados
+│   ├── visualize.py              # Visualización de resultados
+│   └── generate_missing_plots.py # Generación de gráficos faltantes
 ├── utils/                        # Scripts de utilidad
 │   ├── process_csv.py            # Procesa archivos ERA5 .nc a CSV
 │   └── download_modis.py         # Descarga datos MODIS (Google Earth Engine)
@@ -152,6 +172,7 @@ ARTICULOPREDICCIONDEHELADASRENDERIZADAS/
 │       └── website_credential.png
 ├── unificar_datos.ipynb          # Notebook para unificar datos SENAMHI + ERA5
 ├── arquitectura.txt              # Diagrama de arquitectura del sistema
+├── ESTRUCTURA_PROYECTO.md        # Documentación de estructura organizada
 └── README.md                     # Este archivo
 ```
 
@@ -226,6 +247,8 @@ ARTICULOPREDICCIONDEHELADASRENDERIZADAS/
 ✅ **Visualización 3D** - Mapas interactivos del riesgo de helada en tiempo real
 ✅ **Datos Completos** - 392,283 registros históricos (2002-2023)
 ✅ **Documentación Integral** - Arquitectura, métricas, setup, ejecución
+✅ **Estructura Organizada** - Predicciones categorizadas y modelos organizados por directorios
+✅ **Imágenes Organizadas** - 39 imágenes categorizadas en carpetas lógicas (generales, predicciones, modelos)
 
 ---
 
